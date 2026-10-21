@@ -1,0 +1,553 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PrescriptionStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum LabRequestStatus {
+  REQUESTED
+  SAMPLE_COLLECTED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum InventoryTransactionType {
+  PURCHASE
+  SALE
+  ADJUSTMENT
+  RETURN
+  EXPIRED
+}
+
+enum AdmissionStatus {
+  ADMITTED
+  DISCHARGED
+  TRANSFERRED
+  CANCELLED
+}
+
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  UNAVAILABLE
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  users           User[]
+  rolePermissions RolePermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  rolePermissions RolePermission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RolePermission {
+  id Int @id @default(autoincrement())
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  permissionId Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([roleId, permissionId])
+}
+
+model User {
+  id           Int        @id @default(autoincrement())
+  email        String     @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  status       UserStatus @default(ACTIVE)
+
+  roleId Int
+  role   Role @relation(fields: [roleId], references: [id])
+
+  doctor   Doctor?
+  employee Employee?
+
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Department {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  doctors   Doctor[]
+  employees Employee[]
+  wards     Ward[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Patient {
+  id             Int       @id @default(autoincrement())
+  patientNumber  String    @unique
+  firstName      String
+  lastName       String
+  dateOfBirth    DateTime?
+  gender         Gender?
+  phone          String?
+  email          String?
+  address        String?
+  bloodGroup     String?
+  emergencyName  String?
+  emergencyPhone String?
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  labRequests    LabRequest[]
+  admissions     Admission[]
+  invoices       Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Doctor {
+  id             Int     @id @default(autoincrement())
+  registrationNo String  @unique
+  specialization String?
+  qualification  String?
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  labRequests    LabRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+  id          Int               @id @default(autoincrement())
+  scheduledAt DateTime
+  reason      String?
+  notes       String?
+  status      AppointmentStatus @default(SCHEDULED)
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  doctorId Int
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicalRecord {
+  id        Int     @id @default(autoincrement())
+  diagnosis String?
+  symptoms  String?
+  treatment String?
+  notes     String?
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  doctorId Int
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  prescriptions Prescription[]
+  labRequests   LabRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Prescription {
+  id     Int                @id @default(autoincrement())
+  notes  String?
+  status PrescriptionStatus @default(ACTIVE)
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  doctorId Int
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  medicalRecordId Int?
+  medicalRecord   MedicalRecord? @relation(fields: [medicalRecordId], references: [id])
+
+  items PrescriptionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PrescriptionItem {
+  id Int @id @default(autoincrement())
+
+  prescriptionId Int
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  medicineId Int?
+  medicine   Medicine? @relation(fields: [medicineId], references: [id])
+
+  medicineName String
+  dosage       String
+  frequency    String
+  duration     String?
+  instructions String?
+  quantity     Int?
+
+  createdAt DateTime @default(now())
+}
+
+model LabTest {
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
+  name        String
+  description String?
+  price       Decimal @default(0) @db.Decimal(12, 2)
+  active      Boolean @default(true)
+
+  requestItems LabRequestItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LabRequest {
+  id     Int              @id @default(autoincrement())
+  status LabRequestStatus @default(REQUESTED)
+  notes  String?
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  doctorId Int
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  medicalRecordId Int?
+  medicalRecord   MedicalRecord? @relation(fields: [medicalRecordId], references: [id])
+
+  items LabRequestItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LabRequestItem {
+  id Int @id @default(autoincrement())
+
+  labRequestId Int
+  labRequest   LabRequest @relation(fields: [labRequestId], references: [id], onDelete: Cascade)
+
+  labTestId Int
+  labTest   LabTest @relation(fields: [labTestId], references: [id])
+
+  result LabResult?
+
+  createdAt DateTime @default(now())
+
+  @@unique([labRequestId, labTestId])
+}
+
+model LabResult {
+  id             Int     @id @default(autoincrement())
+  resultValue    String?
+  referenceRange String?
+  remarks        String?
+
+  labRequestItemId Int            @unique
+  labRequestItem   LabRequestItem @relation(fields: [labRequestItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicineCategory {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  medicines Medicine[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Medicine {
+  id           Int     @id @default(autoincrement())
+  code         String  @unique
+  name         String
+  genericName  String?
+  manufacturer String?
+  unit         String
+  sellingPrice Decimal @default(0) @db.Decimal(12, 2)
+  active       Boolean @default(true)
+
+  categoryId Int?
+  category   MedicineCategory? @relation(fields: [categoryId], references: [id])
+
+  batches               MedicineBatch[]
+  inventoryTransactions InventoryTransaction[]
+  prescriptionItems     PrescriptionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicineBatch {
+  id          Int       @id @default(autoincrement())
+  batchNumber String
+  quantity    Int
+  costPrice   Decimal   @db.Decimal(12, 2)
+  expiryDate  DateTime?
+
+  medicineId Int
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([medicineId, batchNumber])
+}
+
+model InventoryTransaction {
+  id       Int                      @id @default(autoincrement())
+  type     InventoryTransactionType
+  quantity Int
+  notes    String?
+
+  medicineId Int
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Ward {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  rooms Room[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id         Int    @id @default(autoincrement())
+  roomNumber String
+
+  wardId Int
+  ward   Ward @relation(fields: [wardId], references: [id])
+
+  beds Bed[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([wardId, roomNumber])
+}
+
+model Bed {
+  id        Int       @id @default(autoincrement())
+  bedNumber String
+  status    BedStatus @default(AVAILABLE)
+
+  roomId Int
+  room   Room @relation(fields: [roomId], references: [id])
+
+  admissions Admission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roomId, bedNumber])
+}
+
+model Admission {
+  id            Int             @id @default(autoincrement())
+  admissionDate DateTime        @default(now())
+  dischargeDate DateTime?
+  reason        String?
+  status        AdmissionStatus @default(ADMITTED)
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  bedId Int?
+  bed   Bed? @relation(fields: [bedId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id          Int       @id @default(autoincrement())
+  employeeNo  String    @unique
+  designation String
+  joinedDate  DateTime?
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  attendanceRecords Attendance[]
+  leaveRecords      LeaveRecord[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id       Int       @id @default(autoincrement())
+  date     DateTime
+  checkIn  DateTime?
+  checkOut DateTime?
+  notes    String?
+
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([employeeId, date])
+}
+
+model LeaveRecord {
+  id        Int         @id @default(autoincrement())
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+  status    LeaveStatus @default(PENDING)
+
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Invoice {
+  id            Int     @id @default(autoincrement())
+  invoiceNumber String  @unique
+  totalAmount   Decimal @db.Decimal(12, 2)
+  paidAmount    Decimal @default(0) @db.Decimal(12, 2)
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  items    InvoiceItem[]
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InvoiceItem {
+  id          Int     @id @default(autoincrement())
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(12, 2)
+  total       Decimal @db.Decimal(12, 2)
+
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id        Int     @id @default(autoincrement())
+  amount    Decimal @db.Decimal(12, 2)
+  method    String
+  reference String?
+
+  invoiceId Int
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        Int     @id @default(autoincrement())
+  action    String
+  entity    String
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
