@@ -34,6 +34,9 @@ import Appointments from './pages/Appointments'
 import ReceptionDashboard from './pages/ReceptionDashboard'
 import Doctors from './pages/Doctors'
 import DoctorSchedules from './pages/DoctorSchedules'
+import DoctorDashboard from './pages/DoctorDashboard'
+import DoctorPatientQueue from './pages/DoctorPatientQueue'
+import DoctorConsultation from './pages/DoctorConsultation'
 
 interface LoginResponse {
   accessToken: string
@@ -345,6 +348,10 @@ function RoleDashboard() {
     return <ReceptionDashboard />
   }
 
+  if (user?.role?.toUpperCase() === 'DOCTOR') {
+    return <DoctorDashboard />
+  }
+
   return <Dashboard />
 }
 
@@ -379,10 +386,16 @@ function App() {
             <ProtectedRoute allowedRoles={['ADMIN', 'RECEPTIONIST']} />
           }>
             <Route path="/patients" element={<Patients />} />
-            <Route path="/patients/:id" element={<PatientProfile />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/emergency" element={<Emergency />} />
             <Route path="/billing" element={<ModuleWorkspace moduleKey="billing" />} />
+          </Route>
+
+          {/* Patient profiles may be viewed by their assigned clinical staff */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'RECEPTIONIST', 'DOCTOR']} />
+          }>
+            <Route path="/patients/:id" element={<PatientProfile />} />
           </Route>
 
           {/* Doctor management and schedules */}
@@ -392,6 +405,14 @@ function App() {
   <Route path="/doctors" element={<Doctors />} />
   <Route path="/doctors/:id/schedules" element={<DoctorSchedules />} />
 </Route>
+
+          {/* Doctor patient queue and consultation workspace */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['DOCTOR']} />
+          }>
+            <Route path="/patient-queue" element={<DoctorPatientQueue />} />
+            <Route path="/patient-queue/:appointmentId" element={<DoctorConsultation />} />
+          </Route>
 
 
           {/* Administrator only */}

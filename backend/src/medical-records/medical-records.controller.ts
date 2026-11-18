@@ -8,20 +8,24 @@ import { UpdateMedicalRecordDto } from './dto/update-medical-record.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/roles/roles.guard.js';
 import { Roles } from '../auth/roles/roles.decorator.js';
+import { PermissionsGuard } from '../auth/permissions/permissions.guard.js';
+import { Permissions } from '../auth/permissions/permissions.decorator.js';
 
 @Controller('medical-records')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 export class MedicalRecordsController {
   constructor(private readonly records: MedicalRecordService) {}
 
   @Post()
   @Roles('ADMIN', 'DOCTOR')
+  @Permissions('MEDICAL_RECORD_CREATE')
   create(@Body() dto: CreateMedicalRecordDto, @Req() req: any) {
     return this.records.create(dto, req.user.userId, req.user.role);
   }
 
   @Get()
   @Roles('ADMIN', 'DOCTOR', 'NURSE')
+  @Permissions('MEDICAL_RECORD_VIEW')
   findAll(
     @Query('patientId') patientId?: string,
     @Query('doctorId') doctorId?: string,
@@ -39,24 +43,28 @@ export class MedicalRecordsController {
 
   @Get('statistics/overview')
   @Roles('ADMIN', 'DOCTOR')
+  @Permissions('MEDICAL_RECORD_VIEW')
   statistics(@Req() req: any) {
     return this.records.statistics(req.user.userId, req.user.role);
   }
 
   @Get('patient/:patientId/history')
   @Roles('ADMIN', 'DOCTOR', 'NURSE')
+  @Permissions('MEDICAL_RECORD_VIEW')
   patientHistory(@Param('patientId', ParseIntPipe) patientId: number, @Req() req: any) {
     return this.records.patientHistory(patientId, req.user.userId, req.user.role);
   }
 
   @Get(':id')
   @Roles('ADMIN', 'DOCTOR', 'NURSE')
+  @Permissions('MEDICAL_RECORD_VIEW')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.records.findOne(id, req.user.userId, req.user.role);
   }
 
   @Patch(':id')
   @Roles('ADMIN', 'DOCTOR')
+  @Permissions('MEDICAL_RECORD_UPDATE')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateMedicalRecordDto,

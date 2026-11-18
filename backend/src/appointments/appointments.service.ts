@@ -16,7 +16,7 @@ export class AppointmentsService {
     private readonly statistics: AppointmentStatisticsService,
   ) {}
 
-  create(dto: CreateAppointmentDto) { return this.profile.create(dto); }
+  create(dto: CreateAppointmentDto, userId?: number, role?: string) { return this.profile.create(dto, userId, role); }
   findAll(doctorId?: number) {
   return this.profile.findAll(doctorId);
   }
@@ -25,8 +25,8 @@ findOne(id: number, doctorId?: number) {
   }
   update(id: number, dto: UpdateAppointmentDto) { return this.profile.update(id, dto); }
   cancel(id: number, reason?: string) { return this.profile.cancel(id, reason); }
-  updateStatus(id: number, status: AppointmentStatus, notes?: string) {
-    return this.profile.updateStatus(id, status, notes);
+  updateStatus(id: number, status: AppointmentStatus, notes?: string, doctorId?: number) {
+    return this.profile.updateStatus(id, status, notes, doctorId);
   }
   remove(id: number) { return this.profile.remove(id); }
 search(options: AppointmentSearchOptions, doctorId?: number) {
@@ -57,4 +57,12 @@ search(options: AppointmentSearchOptions, doctorId?: number) {
     duration,
   );
 }
+
+  startConsultation(id: number, doctorId: number) {
+    return this.profile.startConsultation(id, doctorId);
+  }
+
+  completeConsultation(id: number, doctorId: number) {
+    return this.profile.completeConsultation(id, doctorId);
+  }
 }

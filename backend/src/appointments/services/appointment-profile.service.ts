@@ -30,7 +30,7 @@ export class AppointmentProfileService {
 
   // CREATE APPOINTMENT
 
-  async create(dto: CreateAppointmentDto) {
+  async create(dto: CreateAppointmentDto, userId?: number, role?: string) {
     const scheduledAt = new Date(dto.scheduledAt);
 
     if (Number.isNaN(scheduledAt.getTime())) {
@@ -42,6 +42,22 @@ export class AppointmentProfileService {
     try {
       return await this.prisma.$transaction(
         async (tx) => {
+          if (role === 'DOCTOR') {
+            if (!userId) throw new ForbiddenException('Doctor account is required');
+            const ownDoctor = await tx.doctor.findUnique({
+              where: { userId },
+              select: { id: true, active: true },
+            });
+            if (!ownDoctor) throw new ForbiddenException('No doctor profile is linked to this account');
+            if (!ownDoctor.active) throw new ForbiddenException('Doctor account is inactive');
+            const ownedAppointment = await tx.appointment.findFirst({
+              where: { patientId: dto.patientId, doctorId: ownDoctor.id },
+              select: { id: true },
+            });
+            if (!ownedAppointment) {
+              throw new ForbiddenException('Doctors can only schedule follow-ups for their own patients');
+            }
+          }
           // Verify patient
 
           const patient = await tx.patient.findUnique({
@@ -358,8 +374,9 @@ export class AppointmentProfileService {
       | 'CANCELLED'
       | 'NO_SHOW',
     notes?: string,
+    doctorId?: number,
   ) {
-    const appointment = await this.findOne(id);
+    const appointment = await this.findOne(id, doctorId);
 
     if (
       ['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(
@@ -397,6 +414,46 @@ export class AppointmentProfileService {
         doctor: true,
         department: true,
       },
+    });
+  }
+
+  async startConsultation(id: number, doctorId: number) {
+    const appointment = await this.findOne(id, doctorId);
+    if (['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(appointment.status)) {
+      throw new BadRequestException('Cancelled, completed, or no-show appointments cannot be started');
+    }
+    const existingRecord = await this.prisma.medicalRecord.findUnique({
+      where: { appointmentId: id },
+    });
+    if (existingRecord) {
+      throw new ConflictException('A consultation already exists for this appointment');
+    }
+    if (appointment.status === 'SCHEDULED') {
+      return this.prisma.appointment.update({
+        where: { id },
+        data: { status: 'CONFIRMED', confirmedAt: new Date() },
+        include: { patient: true, doctor: true, department: true },
+      });
+    }
+    return appointment;
+  }
+
+  async completeConsultation(id: number, doctorId: number) {
+    const appointment = await this.findOne(id, doctorId);
+    if (appointment.status === 'COMPLETED') {
+      throw new BadRequestException('This consultation is already completed');
+    }
+    if (['CANCELLED', 'NO_SHOW'].includes(appointment.status)) {
+      throw new BadRequestException('A cancelled or no-show appointment cannot be completed');
+    }
+    const record = await this.prisma.medicalRecord.findUnique({
+      where: { appointmentId: id },
+    });
+    if (!record) throw new BadRequestException('Save consultation findings before completing the consultation');
+    return this.prisma.appointment.update({
+      where: { id },
+      data: { status: 'COMPLETED', completedAt: new Date() },
+      include: { patient: true, doctor: true, department: true, medicalRecord: true },
     });
   }
 

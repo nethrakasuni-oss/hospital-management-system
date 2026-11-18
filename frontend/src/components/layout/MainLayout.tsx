@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 const groups = [
   { title: 'OVERVIEW', items: [{ label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }] },
   { title: 'PATIENT CARE', items: [
+    { label: 'Patient Queue', path: '/patient-queue', icon: Stethoscope },
     { label: 'Patients', path: '/patients', icon: Users }, { label: 'Medical Records', path: '/medical-records', icon: ClipboardList }, { label: 'Appointments', path: '/appointments', icon: CalendarDays },
     { label: 'Doctors', path: '/doctors', icon: Stethoscope }, { label: 'Departments', path: '/departments', icon: ClipboardList },
     { label: 'Admissions & Beds', path: '/admissions', icon: BedDouble }, { label: 'Nursing', path: '/nursing', icon: HeartPulse },
@@ -54,6 +55,10 @@ function Sidebar({
 
         if (role === 'RECEPTIONIST') {
           return receptionistPaths.includes(item.path)
+        }
+
+        if (role === 'DOCTOR') {
+          return item.path === '/dashboard' || item.path === '/patient-queue'
         }
 
         return item.path === '/dashboard'

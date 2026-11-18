@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -41,14 +42,50 @@ export class MedicalRecordService {
       throw new ForbiddenException('Doctors can only create records under their own profile');
     }
 
+    if (dto.appointmentId !== undefined) {
+      const appointment = await this.prisma.appointment.findUnique({
+        where: { id: dto.appointmentId },
+        include: { patient: { select: { id: true } } },
+      });
+      if (!appointment) throw new NotFoundException('Appointment not found');
+      if (appointment.patientId !== dto.patientId || appointment.doctorId !== dto.doctorId) {
+        throw new ForbiddenException('The consultation must match the appointment patient and doctor');
+      }
+      if (role === 'DOCTOR' && appointment.doctorId !== doctor.id) {
+        throw new ForbiddenException('You can only create consultations for your own appointments');
+      }
+      if (['CANCELLED', 'COMPLETED', 'NO_SHOW'].includes(appointment.status)) {
+        throw new ForbiddenException('Cancelled, completed, or no-show appointments cannot start a consultation');
+      }
+      const existing = await this.prisma.medicalRecord.findUnique({
+        where: { appointmentId: dto.appointmentId },
+      });
+      if (existing) throw new ConflictException('A consultation already exists for this appointment');
+    }
+
     return this.prisma.medicalRecord.create({
       data: {
         patientId: dto.patientId,
         doctorId: dto.doctorId,
+        appointmentId: dto.appointmentId,
         diagnosis: dto.diagnosis?.trim() || null,
         symptoms: dto.symptoms?.trim() || null,
         treatment: dto.treatment?.trim() || null,
         notes: dto.notes?.trim() || null,
+        chiefComplaint: dto.chiefComplaint?.trim() || null,
+        historyPresentIllness: dto.historyPresentIllness?.trim() || null,
+        previousMedicalHistory: dto.previousMedicalHistory?.trim() || null,
+        currentMedications: dto.currentMedications?.trim() || null,
+        allergies: dto.allergies?.trim() || null,
+        bloodPressure: dto.bloodPressure?.trim() || null,
+        pulse: dto.pulse?.trim() || null,
+        temperature: dto.temperature?.trim() || null,
+        respiratoryRate: dto.respiratoryRate?.trim() || null,
+        oxygenSaturation: dto.oxygenSaturation?.trim() || null,
+        weight: dto.weight?.trim() || null,
+        height: dto.height?.trim() || null,
+        physicalExamination: dto.physicalExamination?.trim() || null,
+        followUpRecommendations: dto.followUpRecommendations?.trim() || null,
       },
       include: {
         patient: true,
@@ -124,6 +161,20 @@ export class MedicalRecordService {
         ...(dto.symptoms !== undefined ? { symptoms: dto.symptoms?.trim() || null } : {}),
         ...(dto.treatment !== undefined ? { treatment: dto.treatment?.trim() || null } : {}),
         ...(dto.notes !== undefined ? { notes: dto.notes?.trim() || null } : {}),
+        ...(dto.chiefComplaint !== undefined ? { chiefComplaint: dto.chiefComplaint?.trim() || null } : {}),
+        ...(dto.historyPresentIllness !== undefined ? { historyPresentIllness: dto.historyPresentIllness?.trim() || null } : {}),
+        ...(dto.previousMedicalHistory !== undefined ? { previousMedicalHistory: dto.previousMedicalHistory?.trim() || null } : {}),
+        ...(dto.currentMedications !== undefined ? { currentMedications: dto.currentMedications?.trim() || null } : {}),
+        ...(dto.allergies !== undefined ? { allergies: dto.allergies?.trim() || null } : {}),
+        ...(dto.bloodPressure !== undefined ? { bloodPressure: dto.bloodPressure?.trim() || null } : {}),
+        ...(dto.pulse !== undefined ? { pulse: dto.pulse?.trim() || null } : {}),
+        ...(dto.temperature !== undefined ? { temperature: dto.temperature?.trim() || null } : {}),
+        ...(dto.respiratoryRate !== undefined ? { respiratoryRate: dto.respiratoryRate?.trim() || null } : {}),
+        ...(dto.oxygenSaturation !== undefined ? { oxygenSaturation: dto.oxygenSaturation?.trim() || null } : {}),
+        ...(dto.weight !== undefined ? { weight: dto.weight?.trim() || null } : {}),
+        ...(dto.height !== undefined ? { height: dto.height?.trim() || null } : {}),
+        ...(dto.physicalExamination !== undefined ? { physicalExamination: dto.physicalExamination?.trim() || null } : {}),
+        ...(dto.followUpRecommendations !== undefined ? { followUpRecommendations: dto.followUpRecommendations?.trim() || null } : {}),
       },
       include: {
         patient: true,
