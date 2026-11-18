@@ -1,0 +1,97 @@
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { CreateNursingAssignmentDto } from '../dto/create-nursing-assignment.dto.js';
+import { UpdateNursingAssignmentDto } from '../dto/update-nursing-assignment.dto.js';
+
+@Injectable()
+export class NursingAssignmentService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(employeeId: number, dto: CreateNursingAssignmentDto) {
+    const patient = await this.prisma.patient.findUnique({ where: { id: dto.patientId }, select: { id: true } });
+    if (!patient) throw new NotFoundException('Patient not found');
+
+    const employee = await this.prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true, isActive: true } });
+    if (!employee) throw new NotFoundException('Nursing employee not found');
+    if (!employee.isActive) throw new BadRequestException('Employee is inactive');
+
+    if (dto.admissionId) {
+      const admission = await this.prisma.admission.findUnique({ where: { id: dto.admissionId }, select: { id: true, patientId: true } });
+      if (!admission) throw new NotFoundException('Admission not found');
+      if (admission.patientId !== dto.patientId) throw new BadRequestException('Admission does not belong to this patient');
+    }
+
+    const assignedAt = dto.assignedAt ? new Date(dto.assignedAt) : new Date();
+    if (Number.isNaN(assignedAt.getTime())) throw new BadRequestException('Invalid assignedAt date');
+
+    try {
+      return await this.prisma.nursingAssignment.create({
+        data: {
+          patientId: dto.patientId,
+          employeeId,
+          admissionId: dto.admissionId ?? null,
+          assignedAt,
+          shift: dto.shift?.trim() || null,
+          notes: dto.notes?.trim() || null,
+        },
+        include: { patient: true, employee: { include: { user: true, department: true } }, admission: true },
+      });
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2003') throw new BadRequestException('Invalid patient, employee or admission reference');
+      throw error;
+    }
+  }
+
+  async findAll(filters: { patientId?: number; employeeId?: number; admissionId?: number; active?: boolean }) {
+    return this.prisma.nursingAssignment.findMany({
+      where: {
+        ...(filters.patientId ? { patientId: filters.patientId } : {}),
+        ...(filters.employeeId ? { employeeId: filters.employeeId } : {}),
+        ...(filters.admissionId ? { admissionId: filters.admissionId } : {}),
+        ...(filters.active !== undefined ? { active: filters.active } : {}),
+      },
+      include: { patient: true, employee: { include: { user: true, department: true } }, admission: true },
+      orderBy: { assignedAt: 'desc' },
+    });
+  }
+
+  async findOne(id: number) {
+    const item = await this.prisma.nursingAssignment.findUnique({
+      where: { id },
+      include: { patient: true, employee: { include: { user: true, department: true } }, admission: true },
+    });
+    if (!item) throw new NotFoundException('Nursing assignment not found');
+    return item;
+  }
+
+  async update(id: number, dto: UpdateNursingAssignmentDto) {
+    const current = await this.findOne(id);
+    const assignedAt = dto.assignedAt ? new Date(dto.assignedAt) : current.assignedAt;
+    const endedAt = dto.endedAt === undefined ? current.endedAt : dto.endedAt === null ? null : new Date(dto.endedAt);
+    if (Number.isNaN(assignedAt.getTime()) || (endedAt && Number.isNaN(endedAt.getTime()))) throw new BadRequestException('Invalid assignment date');
+    if (endedAt && endedAt < assignedAt) throw new BadRequestException('endedAt cannot be earlier than assignedAt');
+    const active = dto.active ?? current.active;
+    if (active && endedAt) throw new BadRequestException('An active assignment cannot have endedAt');
+    return this.prisma.nursingAssignment.update({
+      where: { id },
+      data: {
+        ...(dto.assignedAt !== undefined ? { assignedAt } : {}),
+        ...(dto.endedAt !== undefined ? { endedAt } : {}),
+        ...(dto.shift !== undefined ? { shift: dto.shift?.trim() || null } : {}),
+        ...(dto.notes !== undefined ? { notes: dto.notes?.trim() || null } : {}),
+        ...(dto.active !== undefined ? { active: dto.active } : {}),
+      },
+      include: { patient: true, employee: { include: { user: true, department: true } }, admission: true },
+    });
+  }
+
+  async end(id: number) {
+    const current = await this.findOne(id);
+    if (!current.active) throw new ConflictException('Assignment is already ended');
+    return this.prisma.nursingAssignment.update({
+      where: { id },
+      data: { active: false, endedAt: new Date() },
+      include: { patient: true, employee: { include: { user: true } }, admission: true },
+    });
+  }
+}

@@ -1,3 +1,4 @@
+
 import {
   Body,
   Controller,
@@ -17,40 +18,46 @@ import { CreatePatientDto } from './dto/create-patient.dto.js';
 import { UpdatePatientDto } from './dto/update-patient.dto.js';
 
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard.js';
-import { RolesGuard } from '../auth/roles/roles.guard.js';
-import { Roles } from '../auth/roles/roles.decorator.js';
+
+import { PermissionsGuard } from '../auth/permissions/permissions.guard.js';
+import { Permissions } from '../auth/permissions/permissions.decorator.js';
 
 @Controller('patients')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
+  // Register a new patient
   @Post()
-  @Roles('ADMIN', 'RECEPTIONIST')
+  @Permissions('PATIENT_CREATE')
   create(@Body() dto: CreatePatientDto) {
     return this.patientsService.create(dto);
   }
 
+  // Get all patients
   @Get()
-  @Roles('ADMIN', 'RECEPTIONIST', 'DOCTOR', 'NURSE')
+  @Permissions('PATIENT_VIEW')
   findAll() {
     return this.patientsService.findAll();
   }
 
+  // Search patients
   @Get('search')
-  @Roles('ADMIN', 'RECEPTIONIST', 'DOCTOR', 'NURSE')
+  @Permissions('PATIENT_VIEW')
   search(@Query('q') q: string) {
     return this.patientsService.search(q);
   }
 
+  // Get patient by ID
   @Get(':id')
-  @Roles('ADMIN', 'RECEPTIONIST', 'DOCTOR', 'NURSE')
+  @Permissions('PATIENT_VIEW')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.findOne(id);
   }
 
+  // Update patient
   @Patch(':id')
-  @Roles('ADMIN', 'RECEPTIONIST')
+  @Permissions('PATIENT_UPDATE')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdatePatientDto,
@@ -58,8 +65,9 @@ export class PatientsController {
     return this.patientsService.update(id, dto);
   }
 
+  // Delete patient
   @Delete(':id')
-  @Roles('ADMIN')
+  @Permissions('PATIENT_DELETE')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.remove(id);
   }
