@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -41,7 +42,7 @@ export class PatientsService {
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, userId?: number, role?: string) {
     const patient = await this.prisma.patient.findUnique({
       where: {
         id,
@@ -50,6 +51,19 @@ export class PatientsService {
 
     if (!patient) {
       throw new NotFoundException('Patient not found');
+    }
+
+    if (role === 'DOCTOR' && userId !== undefined) {
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { userId },
+        select: { id: true },
+      });
+      if (!doctor) throw new ForbiddenException('No doctor profile is linked to this account');
+      const appointment = await this.prisma.appointment.findFirst({
+        where: { patientId: id, doctorId: doctor.id },
+        select: { id: true },
+      });
+      if (!appointment) throw new ForbiddenException('You can only access your own patients');
     }
 
     return patient;

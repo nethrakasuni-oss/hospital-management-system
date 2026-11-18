@@ -1,5 +1,5 @@
 import {
-  BadRequestException, ConflictException, Injectable, NotFoundException,
+  BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client.js';
 import { PrismaService } from '../../prisma/prisma.service.js';
@@ -8,6 +8,7 @@ import { CreateMedicineDto } from '../dto/create-medicine.dto.js';
 import { UpdateMedicineDto } from '../dto/update-medicine.dto.js';
 import { CreateStockBatchDto } from '../dto/create-stock-batch.dto.js';
 import { AdjustStockDto } from '../dto/adjust-stock.dto.js';
+import { CreatePrescriptionDto } from '../dto/create-prescription.dto.js';
 
 @Injectable()
 export class PharmacyService {
@@ -289,12 +290,108 @@ export class PharmacyService {
     });
   }
 
-  async prescription(id: number) {
+  async createPrescription(dto: CreatePrescriptionDto, userId: number, role: string) {
+    const doctor = await this.prisma.doctor.findUnique({
+      where: { id: dto.doctorId },
+      select: { id: true, userId: true, active: true },
+    });
+    if (!doctor) throw new NotFoundException('Doctor not found');
+    if (!doctor.active) throw new ForbiddenException('Doctor is inactive');
+    if (role === 'DOCTOR' && doctor.userId !== userId) {
+      throw new ForbiddenException('Doctors can only create prescriptions under their own profile');
+    }
+
+    const patient = await this.prisma.patient.findUnique({
+      where: { id: dto.patientId },
+      select: { id: true },
+    });
+    if (!patient) throw new NotFoundException('Patient not found');
+
+    if (role === 'DOCTOR') {
+      const ownedAppointment = await this.prisma.appointment.findFirst({
+        where: { patientId: dto.patientId, doctorId: dto.doctorId },
+        select: { id: true },
+      });
+      if (!ownedAppointment) throw new ForbiddenException('You can only prescribe for your own patients');
+    }
+
+    let medicalRecordId: number | undefined;
+    if (dto.medicalRecordId !== undefined) {
+      const record = await this.prisma.medicalRecord.findUnique({
+        where: { id: dto.medicalRecordId },
+        select: { id: true, patientId: true, doctorId: true },
+      });
+      if (!record) throw new NotFoundException('Medical record not found');
+      if (record.patientId !== dto.patientId || record.doctorId !== dto.doctorId) {
+        throw new ForbiddenException('Prescription must match the patient and doctor of the medical record');
+      }
+      medicalRecordId = record.id;
+    }
+
+    for (const item of dto.items) {
+      if (item.medicineId !== undefined) {
+        const medicine = await this.prisma.medicine.findUnique({
+          where: { id: item.medicineId },
+          select: { id: true, name: true, active: true },
+        });
+        if (!medicine) throw new NotFoundException(`Medicine ${item.medicineId} not found`);
+        if (!medicine.active) throw new BadRequestException(`Medicine ${medicine.name} is inactive`);
+      }
+    }
+
+    return this.prisma.prescription.create({
+      data: {
+        patientId: dto.patientId,
+        doctorId: dto.doctorId,
+        ...(medicalRecordId !== undefined ? { medicalRecordId } : {}),
+        notes: dto.notes?.trim() || null,
+        items: {
+          create: dto.items.map(item => ({
+            ...(item.medicineId !== undefined ? { medicineId: item.medicineId } : {}),
+            medicineName: item.medicineName.trim(),
+            dosage: item.dosage.trim(),
+            frequency: item.frequency.trim(),
+            duration: item.duration?.trim() || null,
+            instructions: item.instructions?.trim() || null,
+            quantity: item.quantity ?? null,
+          })),
+        },
+      },
+      include: { patient: true, doctor: true, items: { include: { medicine: true } }, medicalRecord: true },
+    });
+  }
+
+  async prescriptions(patientId: number | undefined, userId: number, role: string) {
+    let doctorId: number | undefined;
+    if (role === 'DOCTOR') {
+      const doctor = await this.prisma.doctor.findUnique({
+        where: { userId },
+        select: { id: true },
+      });
+      if (!doctor) throw new ForbiddenException('No doctor profile is linked to this account');
+      doctorId = doctor.id;
+    }
+    return this.prisma.prescription.findMany({
+      where: {
+        ...(patientId !== undefined ? { patientId } : {}),
+        ...(doctorId !== undefined ? { doctorId } : {}),
+      },
+      include: { patient: true, doctor: true, items: { include: { medicine: true } }, medicalRecord: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async prescription(id: number, userId: number, role: string) {
     const p = await this.prisma.prescription.findUnique({
       where: { id },
       include: { patient: true, doctor: true, items: { include: { medicine: true } } },
     });
     if (!p) throw new NotFoundException('Prescription not found');
+    if (role === 'DOCTOR') {
+      if (p.doctor.userId !== userId) {
+        throw new ForbiddenException('You can only access prescriptions assigned to you');
+      }
+    }
     return p;
   }
 }

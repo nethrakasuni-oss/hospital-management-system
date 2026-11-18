@@ -11,9 +11,12 @@ import { CreateMedicineDto } from './dto/create-medicine.dto.js';
 import { UpdateMedicineDto } from './dto/update-medicine.dto.js';
 import { CreateStockBatchDto } from './dto/create-stock-batch.dto.js';
 import { AdjustStockDto } from './dto/adjust-stock.dto.js';
+import { CreatePrescriptionDto } from './dto/create-prescription.dto.js';
+import { PermissionsGuard } from '../auth/permissions/permissions.guard.js';
+import { Permissions } from '../auth/permissions/permissions.decorator.js';
 
 @Controller('pharmacy')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 export class PharmacyController {
   constructor(private readonly pharmacy: PharmacyService) {}
 
@@ -60,7 +63,24 @@ export class PharmacyController {
   }
 
   @Get('prescriptions/:id') @Roles('ADMIN','PHARMACIST','DOCTOR')
-  prescription(@Param('id',ParseIntPipe) id: number) { return this.pharmacy.prescription(id); }
+  @Permissions('PRESCRIPTION_VIEW')
+  prescription(@Param('id',ParseIntPipe) id: number, @Req() req: any) {
+    return this.pharmacy.prescription(id, req.user.userId, req.user.role);
+  }
+  @Get('prescriptions') @Roles('ADMIN','PHARMACIST','DOCTOR')
+  @Permissions('PRESCRIPTION_VIEW')
+  prescriptions(@Query('patientId') patientId: string | undefined, @Req() req: any) {
+    const parsedPatientId = patientId === undefined ? undefined : Number(patientId);
+    if (parsedPatientId !== undefined && (!Number.isInteger(parsedPatientId) || parsedPatientId < 1)) {
+      throw new BadRequestException('patientId must be a positive integer');
+    }
+    return this.pharmacy.prescriptions(parsedPatientId, req.user.userId, req.user.role);
+  }
+  @Post('prescriptions') @Roles('ADMIN','DOCTOR','PHARMACIST')
+  @Permissions('PRESCRIPTION_CREATE')
+  createPrescription(@Body() dto: CreatePrescriptionDto, @Req() req: any) {
+    return this.pharmacy.createPrescription(dto, req.user.userId, req.user.role);
+  }
   @Post('prescriptions/:id/dispense') @Roles('ADMIN','PHARMACIST')
   dispense(@Param('id',ParseIntPipe) id: number,@Req() r: any) { return this.pharmacy.dispensePrescription(id,r.user.userId); }
 }

@@ -16,6 +16,7 @@ import { PatientsService } from './patients.service.js';
 
 import { CreatePatientDto } from './dto/create-patient.dto.js';
 import { UpdatePatientDto } from './dto/update-patient.dto.js';
+import { Req } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard.js';
 
@@ -51,8 +52,8 @@ export class PatientsController {
   // Get patient by ID
   @Get(':id')
   @Permissions('PATIENT_VIEW')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.patientsService.findOne(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.patientsService.findOne(id, req.user?.userId, req.user?.role);
   }
 
   // Update patient

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, UserRound, RefreshCw, AlertCircle, CalendarDays, FileText, Stethoscope, Activity, FlaskConical, ShieldCheck, Wallet, BedDouble, Pill } from 'lucide-react'
 import api from '../lib/api'
+import { useAuth } from '../context/AuthContext'
 
 type Row = Record<string, unknown>
 type Tab = { id: string; label: string; endpoint?: string; icon: typeof UserRound; unavailable?: string }
@@ -41,6 +42,8 @@ function safe(value: unknown): string {
 export default function PatientProfile() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const backTarget = user?.role?.trim().toUpperCase() === 'DOCTOR' ? '/dashboard' : '/patients'
   const [patient, setPatient] = useState<Row | null>(null)
   const [active, setActive] = useState('overview')
   const [rows, setRows] = useState<Row[]>([])
@@ -91,13 +94,13 @@ export default function PatientProfile() {
   const profileFields = useMemo(() => patient ? Object.entries(patient).filter(([k,v]) => !/password|token/i.test(k) && (v === null || ['string','number','boolean'].includes(typeof v))).slice(0,24) : [], [patient])
 
   if (loading) return <div className="mc-panel p-8">Loading patient profile…</div>
-  if (!patient) return <div className="mc-panel p-8"><p className="text-red-600">{error || 'Patient not found.'}</p><button className="mc-secondary-button mt-4" onClick={() => navigate('/patients')}>Back to patients</button></div>
+  if (!patient) return <div className="mc-panel p-8"><p className="text-red-600">{error || 'Patient not found.'}</p><button className="mc-secondary-button mt-4" onClick={() => navigate(backTarget)}>Back</button></div>
 
   const fullName = `${safe(patient.firstName)} ${safe(patient.lastName)}`
   return <div className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <button className="mc-icon-button" onClick={() => navigate('/patients')} aria-label="Back to patients"><ArrowLeft size={18}/></button>
+        <button className="mc-icon-button" onClick={() => navigate(backTarget)} aria-label="Back"><ArrowLeft size={18}/></button>
         <div><p className="mc-eyebrow">PATIENT MANAGEMENT / PROFILE</p><h2 className="text-2xl font-bold text-slate-900">{fullName}</h2><p className="text-sm text-slate-500">Patient ID: {safe(patient.patientNumber)}</p></div>
       </div>
       <button className="mc-secondary-button" onClick={() => void loadPatient()}><RefreshCw size={15}/> Refresh profile</button>
