@@ -8,9 +8,12 @@ import { Roles } from '../auth/roles/roles.decorator.js';
 import { BillingService } from './services/billing.service.js';
 import { CreateInvoiceDto } from './dto/create-invoice.dto.js';
 import { CreatePaymentDto } from './dto/create-payment.dto.js';
+import { CreateRefundDto } from './dto/create-refund.dto.js';
+import { Permissions } from '../auth/permissions/permissions.decorator.js';
+import { PermissionsGuard } from '../auth/permissions/permissions.guard.js';
 
 @Controller('billing')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
 export class BillingController {
   constructor(private readonly billing: BillingService) {}
 
@@ -24,12 +27,14 @@ export class BillingController {
 
   @Post('invoices')
   @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Permissions('INVOICE_CREATE')
   createInvoice(@Body() dto: CreateInvoiceDto, @Req() req: any) {
     return this.billing.createInvoice(dto, req.user.userId);
   }
 
   @Get('invoices')
   @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Permissions('INVOICE_VIEW')
   findInvoices(
     @Query('patientId') patient?: string,
     @Query('from') from?: string,
@@ -56,12 +61,14 @@ export class BillingController {
 
   @Get('invoices/:id')
   @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Permissions('INVOICE_VIEW')
   findInvoice(@Param('id', ParseIntPipe) id: number) {
     return this.billing.findInvoice(id);
   }
 
   @Post('invoices/:id/payments')
   @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Permissions('PAYMENT_MANAGE')
   recordPayment(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CreatePaymentDto,
@@ -72,12 +79,40 @@ export class BillingController {
 
   @Get('invoices/:id/payments')
   @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Permissions('INVOICE_VIEW')
   paymentHistory(@Param('id', ParseIntPipe) id: number) {
     return this.billing.paymentHistory(id);
   }
 
+  @Post('invoices/:id/payments/:paymentId/refunds')
+  @Roles('ADMIN', 'ACCOUNTANT')
+  @Permissions('PAYMENT_MANAGE')
+  recordRefund(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('paymentId', ParseIntPipe) paymentId: number,
+    @Body() dto: CreateRefundDto,
+    @Req() req: any,
+  ) {
+    return this.billing.recordRefund(id, paymentId, dto, req.user.userId);
+  }
+
+  @Get('charge-preview/:patientId')
+  @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Permissions('INVOICE_VIEW')
+  chargePreview(@Param('patientId', ParseIntPipe) patientId: number) {
+    return this.billing.chargePreview(patientId);
+  }
+
+  @Get('collections/daily')
+  @Roles('ADMIN', 'ACCOUNTANT')
+  @Permissions('REPORT_VIEW')
+  dailyCollections(@Query('date') date?: string) {
+    return this.billing.dailyCollections(date);
+  }
+
   @Get('statistics/overview')
   @Roles('ADMIN', 'ACCOUNTANT')
+  @Permissions('REPORT_VIEW')
   statistics(@Query('from') from?: string, @Query('to') to?: string) {
     const start = this.parseDate(from);
     const end = this.parseDate(to, true);
@@ -87,10 +122,21 @@ export class BillingController {
 
   @Get('statistics/revenue-by-method')
   @Roles('ADMIN', 'ACCOUNTANT')
+  @Permissions('REPORT_VIEW')
   revenueByMethod(@Query('from') from?: string, @Query('to') to?: string) {
     const start = this.parseDate(from);
     const end = this.parseDate(to, true);
     if (start && end && start > end) throw new BadRequestException('from must be before to');
     return this.billing.revenueByMethod(start, end);
+  }
+
+  @Get('statistics/revenue-by-category')
+  @Roles('ADMIN', 'ACCOUNTANT')
+  @Permissions('REPORT_VIEW')
+  revenueByCategory(@Query('from') from?: string, @Query('to') to?: string) {
+    const start = this.parseDate(from);
+    const end = this.parseDate(to, true);
+    if (start && end && start > end) throw new BadRequestException('from must be before to');
+    return this.billing.revenueByCategory(start, end);
   }
 }

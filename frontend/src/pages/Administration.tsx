@@ -54,6 +54,8 @@ const roles = [
   'ACCOUNTANT',
   'HR_MANAGER',
   'INVENTORY_MANAGER',
+  'LAB_MANAGER',
+  'PATHOLOGIST',
 ]
 
 const sections: {

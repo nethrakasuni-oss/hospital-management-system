@@ -28,7 +28,7 @@ export class NursingNoteService {
         content: dto.content.trim(),
         recordedAt,
       },
-      include: { patient: true, employee: { include: { user: true } }, assignment: true, author: true },
+      include: { patient: true, employee: { include: { user: true } }, assignment: true, authorUser: true },
     });
   }
 
@@ -36,7 +36,7 @@ export class NursingNoteService {
     if (!await this.prisma.patient.findUnique({ where: { id: patientId }, select: { id: true } })) throw new NotFoundException('Patient not found');
     return this.prisma.nursingNote.findMany({
       where: { patientId },
-      include: { employee: { include: { user: true } }, assignment: true, author: true },
+      include: { employee: { include: { user: true } }, assignment: true, authorUser : true },
       orderBy: { recordedAt: 'desc' },
     });
   }

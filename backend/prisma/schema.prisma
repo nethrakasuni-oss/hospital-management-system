@@ -29,15 +29,27 @@ enum Gender {
 
 enum PrescriptionStatus {
   ACTIVE
+  PARTIALLY_DISPENSED
   COMPLETED
   CANCELLED
 }
 
+enum PrescriptionVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
 enum LabRequestStatus {
   REQUESTED
+  SAMPLE_PENDING
   SAMPLE_COLLECTED
+  RECEIVED
   PROCESSING
+  RESULT_ENTERED
+  VERIFIED
   COMPLETED
+  REJECTED
   CANCELLED
 }
 
@@ -147,6 +159,26 @@ model Role {
   updatedAt DateTime @updatedAt
 }
 
+model LabResultHistory {
+  id Int @id @default(autoincrement())
+
+  labResultId Int
+  labResult   LabResult @relation(fields: [labResultId], references: [id], onDelete: Cascade)
+
+  resultValue     String?
+  referenceRange  String?
+  unit            String?
+  abnormalFlag    String?
+  critical        Boolean  @default(false)
+  comments        String?
+  amendmentReason String?
+  changedById     Int
+  changedBy       User     @relation(fields: [changedById], references: [id], onDelete: Restrict)
+  changedAt       DateTime @default(now())
+
+  @@index([labResultId, changedAt])
+}
+
 model Permission {
   id          Int     @id @default(autoincrement())
   name        String  @unique
@@ -188,22 +220,25 @@ model User {
   employee Employee?
 
   // Doctor leave requests reviewed by this user (typically an administrator).
-  doctorLeaveReviews          DoctorLeave[]          @relation("DoctorLeaveReviewer")
-  employeeLeaveReviews        LeaveRecord[]          @relation("EmployeeLeaveReviewer")
-  attendanceCorrectionReviews AttendanceCorrection[] @relation("AttendanceCorrectionReviewer")
-  verifiedLabResults          LabResult[]            @relation("LabResultVerifier")
-  dispensedPrescriptions      Prescription[]         @relation("PrescriptionDispenser")
-  reviewedInsuranceClaims     InsuranceClaim[]       @relation("InsuranceClaimReviewer")
-  nursingNotes                NursingNote[]          @relation("NursingNoteAuthor")
-  medicationAdministrations   MedicationAdministration[] @relation("MedicationAdministrationNurse")
-  outgoingShiftHandovers      ShiftHandover[]        @relation("ShiftHandoverOutgoing")
-  incomingShiftHandovers      ShiftHandover[]        @relation("ShiftHandoverIncoming")
+  doctorLeaveReviews          DoctorLeave[]               @relation("DoctorLeaveReviewer")
+  employeeLeaveReviews        LeaveRecord[]               @relation("EmployeeLeaveReviewer")
+  attendanceCorrectionReviews AttendanceCorrection[]      @relation("AttendanceCorrectionReviewer")
+  verifiedLabResults          LabResult[]                 @relation("LabResultVerifier")
+  labResultHistoryChanges     LabResultHistory[]
+  dispensedPrescriptions      Prescription[]              @relation("PrescriptionDispenser")
+  verifiedPrescriptions       Prescription[]              @relation("PrescriptionVerifier")
+  reviewedInsuranceClaims     InsuranceClaim[]            @relation("InsuranceClaimReviewer")
+  nursingNotes                NursingNote[]               @relation("NursingNoteAuthor")
+  medicationAdministrations   MedicationAdministration[]  @relation("MedicationAdministrationNurse")
+  outgoingShiftHandovers      ShiftHandover[]             @relation("ShiftHandoverOutgoing")
+  incomingShiftHandovers      ShiftHandover[]             @relation("ShiftHandoverIncoming")
   nursingDischargeClearances  NursingDischargeClearance[]
   notifications               Notification[]
-  inventoryTransactions       InventoryTransaction[] @relation("InventoryTransactionActor")
-  createdPurchaseOrders       PurchaseOrder[]        @relation("PurchaseOrderCreator")
+  inventoryTransactions       InventoryTransaction[]      @relation("InventoryTransactionActor")
+  createdPurchaseOrders       PurchaseOrder[]             @relation("PurchaseOrderCreator")
 
   auditLogs AuditLog[]
+  uploadedPatientDocuments PatientDocument[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -248,19 +283,19 @@ model Patient {
   emergencyName  String?
   emergencyPhone String?
 
-  appointments        Appointment[]
-  medicalRecords      MedicalRecord[]
-  prescriptions       Prescription[]
-  labRequests         LabRequest[]
-  admissions          Admission[]
-  invoices            Invoice[]
-  insurancePolicies   PatientInsurance[]
-  insuranceClaims     InsuranceClaim[]
-  nursingAssignments  NursingAssignment[]
-  nursingNotes        NursingNote[]
-  nursingObservations NursingObservation[]
-  medicationAdministrations MedicationAdministration[]
-  shiftHandovers           ShiftHandover[]
+  appointments               Appointment[]
+  medicalRecords             MedicalRecord[]
+  prescriptions              Prescription[]
+  labRequests                LabRequest[]
+  admissions                 Admission[]
+  invoices                   Invoice[]
+  insurancePolicies          PatientInsurance[]
+  insuranceClaims            InsuranceClaim[]
+  nursingAssignments         NursingAssignment[]
+  nursingNotes               NursingNote[]
+  nursingObservations        NursingObservation[]
+  medicationAdministrations  MedicationAdministration[]
+  shiftHandovers             ShiftHandover[]
   nursingDischargeClearances NursingDischargeClearance[]
 
   createdAt DateTime @default(now())
@@ -270,6 +305,27 @@ model Patient {
   surgeryBookings    SurgeryBooking[]
   transfers          PatientTransfer[]
   dischargeSummaries DischargeSummary[]
+  documents          PatientDocument[]
+}
+
+model PatientDocument {
+  id            Int     @id @default(autoincrement())
+  originalName  String
+  storedName    String
+  mimeType      String
+  sizeBytes     Int
+  documentType  String?
+  storageKey    String  @unique
+
+  patientId Int
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  uploadedById Int?
+  uploadedBy   User? @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([patientId, createdAt])
 }
 
 model Doctor {
@@ -476,9 +532,14 @@ model MedicalRecord {
 }
 
 model Prescription {
-  id     Int                @id @default(autoincrement())
-  notes  String?
-  status PrescriptionStatus @default(ACTIVE)
+  id                 Int                            @id @default(autoincrement())
+  notes              String?
+  status             PrescriptionStatus             @default(ACTIVE)
+  verificationStatus PrescriptionVerificationStatus @default(PENDING)
+  verificationReason String?
+  verifiedAt         DateTime?
+  verifiedById       Int?
+  verifiedBy         User?                          @relation("PrescriptionVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
 
   patientId Int
   patient   Patient @relation(fields: [patientId], references: [id])
@@ -493,7 +554,7 @@ model Prescription {
   dispensedById Int?
   dispensedBy   User?     @relation("PrescriptionDispenser", fields: [dispensedById], references: [id], onDelete: SetNull)
 
-  items PrescriptionItem[]
+  items                     PrescriptionItem[]
   medicationAdministrations MedicationAdministration[]
 
   createdAt DateTime @default(now())
@@ -509,23 +570,28 @@ model PrescriptionItem {
   medicineId Int?
   medicine   Medicine? @relation(fields: [medicineId], references: [id])
 
-  medicineName String
-  dosage       String
-  frequency    String
-  duration     String?
-  instructions String?
-  quantity     Int?
+  medicineName      String
+  dosage            String
+  frequency         String
+  duration          String?
+  instructions      String?
+  quantity          Int?
+  dispensedQuantity Int     @default(0)
 
   createdAt DateTime @default(now())
 }
 
 model LabTest {
-  id          Int     @id @default(autoincrement())
-  code        String  @unique
-  name        String
-  description String?
-  price       Decimal @default(0) @db.Decimal(12, 2)
-  active      Boolean @default(true)
+  id             Int     @id @default(autoincrement())
+  code           String  @unique
+  name           String
+  description    String?
+  category       String?
+  sampleType     String?
+  referenceRange String?
+  unit           String?
+  price          Decimal @default(0) @db.Decimal(12, 2)
+  active         Boolean @default(true)
 
   requestItems LabRequestItem[]
 
@@ -534,9 +600,16 @@ model LabTest {
 }
 
 model LabRequest {
-  id     Int              @id @default(autoincrement())
-  status LabRequestStatus @default(REQUESTED)
-  notes  String?
+  id               Int              @id @default(autoincrement())
+  status           LabRequestStatus @default(REQUESTED)
+  notes            String?
+  requestNumber    String           @unique @default("")
+  sampleIdentifier String?
+  barcode          String?
+  collectedAt      DateTime?
+  collectedById    Int?
+  sampleRejected   Boolean          @default(false)
+  rejectionReason  String?
 
   patientId Int
   patient   Patient @relation(fields: [patientId], references: [id])
@@ -570,17 +643,23 @@ model LabRequestItem {
 }
 
 model LabResult {
-  id             Int     @id @default(autoincrement())
-  resultValue    String?
-  referenceRange String?
-  remarks        String?
+  id              Int     @id @default(autoincrement())
+  resultValue     String?
+  referenceRange  String?
+  unit            String?
+  abnormalFlag    String?
+  critical        Boolean @default(false)
+  comments        String?
+  amendmentReason String?
+  remarks         String?
 
   labRequestItemId Int            @unique
   labRequestItem   LabRequestItem @relation(fields: [labRequestItemId], references: [id], onDelete: Cascade)
 
   verifiedAt   DateTime?
   verifiedById Int?
-  verifiedBy   User?     @relation("LabResultVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  verifiedBy   User?              @relation("LabResultVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  history      LabResultHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -683,6 +762,7 @@ model Ward {
 model Room {
   id         Int    @id @default(autoincrement())
   roomNumber String
+  dailyRate  Decimal? @db.Decimal(12, 2)
 
   wardId Int
   ward   Ward @relation(fields: [wardId], references: [id])
@@ -754,12 +834,12 @@ model Employee {
   // Optional department for which this employee is the designated head.
   headsDepartment Department? @relation("DepartmentHead")
 
-  attendanceRecords   Attendance[]
-  leaveRecords        LeaveRecord[]
-  Corrections         AttendanceCorrection[]
-  nursingAssignments  NursingAssignment[]
-  nursingNotes        NursingNote[]
-  nursingObservations NursingObservation[]
+  attendanceRecords         Attendance[]
+  leaveRecords              LeaveRecord[]
+  Corrections               AttendanceCorrection[]
+  nursingAssignments        NursingAssignment[]
+  nursingNotes              NursingNote[]
+  nursingObservations       NursingObservation[]
   medicationAdministrations MedicationAdministration[]
 
   createdAt DateTime @default(now())
@@ -871,6 +951,8 @@ model Invoice {
   invoiceNumber String        @unique
   totalAmount   Decimal       @db.Decimal(12, 2)
   paidAmount    Decimal       @default(0) @db.Decimal(12, 2)
+  discountAmount Decimal      @default(0) @db.Decimal(12, 2)
+  taxAmount      Decimal      @default(0) @db.Decimal(12, 2)
   status        InvoiceStatus @default(ISSUED)
   dueDate       DateTime?     @db.Date
   notes         String?
@@ -892,11 +974,15 @@ model InvoiceItem {
   quantity    Int     @default(1)
   unitPrice   Decimal @db.Decimal(12, 2)
   total       Decimal @db.Decimal(12, 2)
+  sourceType  String?
+  sourceId    Int?
 
   invoiceId Int
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  @@index([sourceType, sourceId])
 }
 
 model Payment {
@@ -1034,10 +1120,10 @@ model MedicationAdministration {
   nurseEmployeeId Int?
   nurseEmployee   Employee? @relation(fields: [nurseEmployeeId], references: [id], onDelete: SetNull)
 
-  status       MedicationAdministrationStatus
+  status         MedicationAdministrationStatus
   administeredAt DateTime
-  reason       String?
-  notes        String?
+  reason         String?
+  notes          String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1052,19 +1138,19 @@ model ShiftHandover {
   patientId Int
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  admissionId Int?
+  admissionId         Int?
   outgoingNurseUserId Int
   outgoingNurseUser   User @relation("ShiftHandoverOutgoing", fields: [outgoingNurseUserId], references: [id], onDelete: Restrict)
 
   incomingNurseUserId Int
   incomingNurseUser   User @relation("ShiftHandoverIncoming", fields: [incomingNurseUserId], references: [id], onDelete: Restrict)
 
-  patientSummary      String
-  currentCondition    String
-  pendingMedications  String?
+  patientSummary        String
+  currentCondition      String
+  pendingMedications    String?
   pendingInvestigations String?
   importantObservations String?
-  escalationNotes     String?
+  escalationNotes       String?
 
   handedOverAt DateTime @default(now())
   createdAt    DateTime @default(now())
@@ -1080,14 +1166,14 @@ model NursingDischargeClearance {
   patientId Int
   patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  admissionId Int @unique
+  admissionId Int  @unique
   nurseUserId Int
   nurseUser   User @relation(fields: [nurseUserId], references: [id], onDelete: Restrict)
 
   nursingDischargeNotes String?
   patientEducation      String?
-  nursingClearance      Boolean  @default(false)
-  documentationComplete Boolean  @default(false)
+  nursingClearance      Boolean   @default(false)
+  documentationComplete Boolean   @default(false)
   clearedAt             DateTime?
 
   createdAt DateTime @default(now())

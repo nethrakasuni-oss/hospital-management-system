@@ -5,6 +5,8 @@ import { CheckOutDto } from './dto/check-out.dto.js';
 import { UpdateAttendanceDto } from './dto/update-attendance.dto.js';
 import { AttendanceCorrectionDto } from './dto/attendance-correction.dto.js';
 import { ReviewCorrectionDto } from './dto/review-correction.dto.js';
+import { CreateLeaveDto } from './dto/create-leave.dto.js';
+import { ReviewLeaveDto } from './dto/review-leave.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/roles/roles.guard.js';
 import { Roles } from '../auth/roles/roles.decorator.js';

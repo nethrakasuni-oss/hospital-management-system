@@ -4,6 +4,10 @@ import { Type } from 'class-transformer';
 export class UpdateLabTestDto {
   @IsOptional() @IsString() @MaxLength(160) name?: string;
   @IsOptional() @IsString() @MaxLength(2000) description?: string | null;
+  @IsOptional() @IsString() @MaxLength(120) category?: string | null;
+  @IsOptional() @IsString() @MaxLength(120) sampleType?: string | null;
+  @IsOptional() @IsString() @MaxLength(1000) referenceRange?: string | null;
+  @IsOptional() @IsString() @MaxLength(50) unit?: string | null;
   @IsOptional() @Type(() => Number) @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) price?: number;
   @IsOptional() @IsBoolean() active?: boolean;
 }

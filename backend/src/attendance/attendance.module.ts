@@ -8,9 +8,10 @@ import { AttendanceCheckOutService } from './services/attendance-checkout.servic
 import { AttendanceReportService } from './services/attendance-report.service.js';
 import { AttendanceCorrectionService } from './services/attendance-correction.service.js';
 import { AttendanceStatisticsService } from './services/attendance-statistics.service.js';
+import { LeaveService } from './services/leave.service.js';
 @Module({
   imports:[PrismaModule], controllers:[AttendanceController],
-  providers:[AttendanceService,AttendanceProfileService,AttendanceCheckInService,AttendanceCheckOutService,AttendanceReportService,AttendanceCorrectionService,AttendanceStatisticsService],
+  providers:[AttendanceService,AttendanceProfileService,AttendanceCheckInService,AttendanceCheckOutService,AttendanceReportService,AttendanceCorrectionService,AttendanceStatisticsService,LeaveService],
   exports:[AttendanceService],
 })
 export class AttendanceModule {}
