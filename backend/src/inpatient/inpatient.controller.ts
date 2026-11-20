@@ -10,6 +10,7 @@ import {
   Query,
   UseGuards,
   BadRequestException,
+  Req,
 } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard.js';
@@ -160,6 +161,7 @@ export class InpatientController {
   findAllAdmissions(
     @Query('patientId') patientId?: string,
     @Query('status') status?: string,
+    @Req() req?: any,
   ) {
     const allowedStatuses = [
       'ADMITTED',
@@ -172,6 +174,9 @@ export class InpatientController {
       throw new BadRequestException('Invalid admission status');
     }
 
+    if (req?.user?.role === 'NURSE') {
+      return this.service.findNurseAdmissions(req.user.userId, status);
+    }
     return this.service.findAllAdmissions(
       this.positiveId(patientId, 'patientId'),
       status,
@@ -180,7 +185,7 @@ export class InpatientController {
 
   @Get('admissions/:id')
   @Roles('ADMIN', 'HR_MANAGER', 'DOCTOR', 'NURSE')
-  findAdmission(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findAdmission(id);
+  findAdmission(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.service.findAdmissionForUser(id, req.user.userId, req.user.role);
   }
 }

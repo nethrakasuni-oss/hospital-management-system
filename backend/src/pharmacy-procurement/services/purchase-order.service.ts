@@ -58,13 +58,23 @@ export class PurchaseOrderService {
     }, include: { supplier: true, items: true } });
   }
   async submit(id: number) {
-    const row = await this.findOne(id);
-    if (String(row.status) !== 'DRAFT' || !row.items.length) throw new BadRequestException('Only non-empty draft orders can be submitted');
-    return this.prisma.purchaseOrder.update({ where: { id }, data: { status: 'ORDERED' as never }, include: { supplier: true, items: true } });
+  const row = await this.findOne(id);
+
+  if (String(row.status) !== 'DRAFT' || !row.items.length) {
+    throw new BadRequestException(
+      'Only non-empty draft orders can be submitted',
+    );
   }
+
+  return this.prisma.purchaseOrder.update({
+    where: { id },
+    data: { status: 'SUBMITTED' },
+    include: { supplier: true, items: true },
+  });
+}
   async cancel(id: number) {
     const row = await this.findOne(id);
-    if (!['DRAFT','ORDERED'].includes(String(row.status)) || row.items.some(x => x.quantityReceived > 0))
+    if (!['DRAFT','SUBMITTED'].includes(String(row.status)) || row.items.some(x => x.quantityReceived > 0))
       throw new BadRequestException('This purchase order cannot be cancelled');
     return this.prisma.purchaseOrder.update({ where: { id }, data: { status: 'CANCELLED' as never }, include: { supplier: true, items: true } });
   }
@@ -73,7 +83,7 @@ export class PurchaseOrderService {
     return this.prisma.$transaction(async tx => {
       const order = await tx.purchaseOrder.findUnique({ where: { id }, include: { items: true } });
       if (!order) throw new NotFoundException('Purchase order not found');
-      if (!['ORDERED','PARTIALLY_RECEIVED'].includes(String(order.status))) throw new BadRequestException('Order is not open for receiving');
+      if (!['SUBMITTED','PARTIALLY_RECEIVED'].includes(String(order.status))) throw new BadRequestException('Order is not open for receiving');
       for (const line of dto.items) {
         const item = order.items.find(x => x.id === line.itemId);
         if (!item) throw new BadRequestException(`Item ${line.itemId} is not part of this order`);
@@ -99,7 +109,7 @@ export class PurchaseOrderService {
       const complete = refreshed.items.every(x => x.quantityReceived === x.quantityOrdered);
       const partial = refreshed.items.some(x => x.quantityReceived > 0);
       return tx.purchaseOrder.update({ where: { id }, data: {
-        status: (complete ? 'RECEIVED' : partial ? 'PARTIALLY_RECEIVED' : 'ORDERED') as never,
+        status: (complete ? 'RECEIVED' : partial ? 'PARTIALLY_RECEIVED' : 'SUBMITTED') as never,
         ...(complete ? { receivedAt: new Date() } : {}),
       }, include: { supplier: true, items: { include: { medicine: true, receivedBatch: true } } } });
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable }).catch(e => {

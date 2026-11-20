@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { ArrayMinSize, IsArray, IsInt, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 
 export class CreatePrescriptionItemDto {
-  @IsOptional() @Type(() => Number) @IsInt() @Min(1) medicineId?: number;
+  @Type(() => Number) @IsInt() @Min(1) medicineId!: number;
   @IsString() @MaxLength(255) medicineName!: string;
   @IsString() @MaxLength(255) dosage!: string;
   @IsString() @MaxLength(255) frequency!: string;

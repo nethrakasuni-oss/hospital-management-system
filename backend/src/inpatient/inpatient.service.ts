@@ -2,6 +2,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -399,7 +400,15 @@ export class InpatientService {
           status: 'ADMITTED',
         },
         include: {
-          patient: true,
+          patient: {
+            include: {
+              appointments: {
+                include: { doctor: { include: { user: true } } },
+                orderBy: { scheduledAt: 'desc' },
+                take: 1,
+              },
+            },
+          },
           bed: {
             include: {
               room: {
@@ -414,14 +423,23 @@ export class InpatientService {
     });
   }
 
-  findAllAdmissions(patientId?: number, status?: string) {
+  findAllAdmissions(patientId?: number, status?: string, patientIds?: number[]) {
     return this.prisma.admission.findMany({
       where: {
         ...(patientId !== undefined ? { patientId } : {}),
+        ...(patientIds !== undefined ? { patientId: { in: patientIds } } : {}),
         ...(status ? { status: status as never } : {}),
       },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            appointments: {
+              include: { doctor: { include: { user: true } } },
+              orderBy: { scheduledAt: 'desc' },
+              take: 1,
+            },
+          },
+        },
         bed: {
           include: {
             room: {
@@ -435,11 +453,33 @@ export class InpatientService {
     });
   }
 
+  async findNurseAdmissions(userId: number, status?: string) {
+    const employee = await this.prisma.employee.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!employee) return [];
+    const assignments = await this.prisma.nursingAssignment.findMany({
+      where: { employeeId: employee.id, active: true },
+      select: { patientId: true },
+    });
+    const patientIds = [...new Set(assignments.map(item => item.patientId))];
+    return this.findAllAdmissions(undefined, status, patientIds);
+  }
+
   async findAdmission(id: number) {
     const admission = await this.prisma.admission.findUnique({
       where: { id },
       include: {
-        patient: true,
+        patient: {
+          include: {
+            appointments: {
+              include: { doctor: { include: { user: true } } },
+              orderBy: { scheduledAt: 'desc' },
+              take: 1,
+            },
+          },
+        },
         bed: {
           include: {
             room: {
@@ -457,6 +497,22 @@ export class InpatientService {
       throw new NotFoundException('Admission not found');
     }
 
+    return admission;
+  }
+
+  async findAdmissionForUser(id: number, userId: number, role: string) {
+    const admission = await this.findAdmission(id);
+    if (role !== 'NURSE') return admission;
+    const employee = await this.prisma.employee.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!employee) throw new ForbiddenException('Authenticated nurse is not linked to an employee record');
+    const assignment = await this.prisma.nursingAssignment.findFirst({
+      where: { patientId: admission.patientId, employeeId: employee.id, active: true },
+      select: { id: true },
+    });
+    if (!assignment) throw new ForbiddenException('You can only access patients assigned to you');
     return admission;
   }
 

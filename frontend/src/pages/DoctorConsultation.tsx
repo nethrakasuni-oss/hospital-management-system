@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
-import { ArrowLeft, CalendarPlus, CheckCircle2, ClipboardList, History, Pill, Save, Stethoscope } from 'lucide-react'
+import { ArrowLeft, CalendarPlus, CheckCircle2, ClipboardList, History, Pill, Save, Stethoscope, TestTube2 } from 'lucide-react'
 import api from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
@@ -77,7 +77,7 @@ export default function DoctorConsultation() {
   const [history, setHistory] = useState<Row[]>([])
   const [recordId, setRecordId] = useState<number | null>(null)
   const [form, setForm] = useState<ConsultationForm>(emptyForm)
-  const [tab, setTab] = useState<'consultation' | 'history' | 'prescription' | 'followup'>('consultation')
+  const [tab, setTab] = useState<'consultation' | 'history' | 'prescription' | 'laboratory' | 'followup'>('consultation')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [completing, setCompleting] = useState(false)
@@ -97,6 +97,12 @@ export default function DoctorConsultation() {
   const [slotsLoading, setSlotsLoading] = useState(false)
   const [followUpSaving, setFollowUpSaving] = useState(false)
   const [followUps, setFollowUps] = useState<Row[]>([])
+  const [labTests, setLabTests] = useState<Row[]>([])
+  const [labRequests, setLabRequests] = useState<Row[]>([])
+  const [labSearch, setLabSearch] = useState('')
+  const [selectedLabTestIds, setSelectedLabTestIds] = useState<number[]>([])
+  const [labNotes, setLabNotes] = useState('')
+  const [labSubmitting, setLabSubmitting] = useState(false)
 
   const load = async () => {
     if (!appointmentId) return
@@ -143,16 +149,20 @@ export default function DoctorConsultation() {
           loadedAppointment.status = status === 'SCHEDULED' ? 'CONFIRMED' : status
           setAppointment({ ...loadedAppointment })
         }
-        const [medicineResponse, prescriptionResponse, doctorResponse, followUpResponse] = await Promise.all([
+        const [medicineResponse, prescriptionResponse, doctorResponse, followUpResponse, labTestResponse, labRequestResponse] = await Promise.all([
           api.get('/pharmacy/medicines'),
           api.get('/pharmacy/prescriptions', { params: { patientId } }),
           api.get('/doctors'),
           api.get('/appointments/search', { params: { patientId, limit: 100 } }),
+          api.get('/laboratory/tests'),
+          api.get('/laboratory/requests', { params: { patientId } }),
         ])
         setMedicines(unwrapRows(medicineResponse.data))
         setPrescriptions(unwrapRows(prescriptionResponse.data))
         setDoctors(unwrapRows(doctorResponse.data).filter((doctor: Row) => doctor.active !== false))
         setFollowUps(unwrapRows(followUpResponse.data))
+        setLabTests(unwrapRows(labTestResponse.data))
+        setLabRequests(unwrapRows(labRequestResponse.data))
       }
     } catch (requestError: unknown) {
       setError(errorText(requestError))
@@ -238,8 +248,8 @@ export default function DoctorConsultation() {
   const savePrescription = async (event: FormEvent) => {
     event.preventDefault()
     if (!appointment || !patient) return
-    if (!prescription.medicineName.trim() || !prescription.dosage.trim() || !prescription.frequency.trim()) {
-      setError('Medicine, dosage, and frequency are required.'); return
+    if (!prescription.medicineId || !prescription.dosage.trim() || !prescription.frequency.trim()) {
+      setError('Select a medicine and enter dosage and frequency.'); return
     }
     setPrescriptionSaving(true); setError(''); setSuccess('')
     try {
@@ -267,6 +277,37 @@ export default function DoctorConsultation() {
       setPrescriptionSaving(false)
     }
   }
+
+  const submitLaboratoryRequest = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!patient || !appointment) { setError('Current patient or appointment context is unavailable.'); return }
+    if (selectedLabTestIds.length === 0) { setError('Select at least one laboratory test.'); return }
+    setLabSubmitting(true); setError(''); setSuccess('')
+    try {
+      const response = await api.post('/laboratory/requests', {
+        patientId: Number(patient.id),
+        doctorId: Number(appointment.doctorId),
+        medicalRecordId: recordId ?? undefined,
+        labTestIds: [...new Set(selectedLabTestIds)],
+        notes: labNotes.trim() || undefined,
+      })
+      const requestNumber = response.data?.requestNumber ?? `LAB-${response.data?.id ?? ''}`
+      setSuccess(`Laboratory request submitted successfully: ${requestNumber}`)
+      setSelectedLabTestIds([])
+      setLabNotes('')
+      const historyResponse = await api.get('/laboratory/requests', { params: { patientId: patient.id } })
+      setLabRequests(unwrapRows(historyResponse.data))
+    } catch (requestError: unknown) {
+      setError(errorText(requestError))
+    } finally {
+      setLabSubmitting(false)
+    }
+  }
+
+  const filteredLabTests = useMemo(() => labTests.filter(test => {
+    const text = `${test.code ?? ''} ${test.name ?? ''} ${test.category ?? ''}`.toLowerCase()
+    return text.includes(labSearch.trim().toLowerCase())
+  }), [labTests, labSearch])
 
   const bookFollowUp = async (event: FormEvent) => {
     event.preventDefault()
@@ -324,6 +365,7 @@ export default function DoctorConsultation() {
           ['consultation', 'Consultation', ClipboardList],
           ['history', 'Clinical History', History],
           ['prescription', 'Prescription', Pill],
+          ['laboratory', 'Laboratory Tests', TestTube2],
           ['followup', 'Follow-up', CalendarPlus],
         ].map(([id, label, Icon]) => (
           <button type="button" key={String(id)} className={tab === id ? 'active' : ''} onClick={() => setTab(id as typeof tab)}>
@@ -398,11 +440,10 @@ export default function DoctorConsultation() {
           <form className="mc-panel consultation-section" onSubmit={savePrescription}>
             <div className="consultation-section-heading"><Pill size={18}/><div><h3>New Prescription</h3><p>Saving a prescription does not deduct inventory</p></div></div>
             <div className="consultation-fields">
-              <label className="full">Medicine<select value={prescription.medicineId} onChange={e => {
+              <label className="full">Medicine *<select required value={prescription.medicineId} onChange={e => {
                 const medicine = medicines.find(item => String(item.id) === e.target.value)
                 setPrescription({...prescription, medicineId: e.target.value, medicineName: medicine?.name ?? ''})
-              }}><option value="">Custom / select medicine</option>{medicines.map(medicine => <option key={medicine.id} value={medicine.id}>{medicine.name}</option>)}</select></label>
-              <label className="full">Medicine name *<input required value={prescription.medicineName} onChange={e => setPrescription({...prescription, medicineName: e.target.value})}/></label>
+              }}><option value="">Select medicine</option>{medicines.map(medicine => <option key={medicine.id} value={medicine.id}>{medicine.name}</option>)}</select></label>
               <label>Dosage *<input required value={prescription.dosage} onChange={e => setPrescription({...prescription, dosage: e.target.value})}/></label>
               <label>Frequency *<input required value={prescription.frequency} onChange={e => setPrescription({...prescription, frequency: e.target.value})}/></label>
               <label>Duration<input value={prescription.duration} onChange={e => setPrescription({...prescription, duration: e.target.value})}/></label>
@@ -414,6 +455,65 @@ export default function DoctorConsultation() {
           <section className="mc-panel consultation-section">
             <div className="consultation-section-heading"><History size={18}/><div><h3>Prescription History</h3><p>Existing prescriptions for this patient</p></div></div>
             {prescriptions.length === 0 ? <p className="consultation-empty">No prescriptions found.</p> : <div className="consultation-history-list">{prescriptions.map(item => <article key={item.id}><div><strong>Prescription #{item.id}</strong><span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—'}</span></div>{unwrapRows(item.items).map((med: Row) => <p key={med.id}><b>{med.medicineName}</b> — {med.dosage}, {med.frequency}{med.duration ? `, ${med.duration}` : ''}</p>)}</article>)}</div>}
+          </section>
+        </div>
+      )}
+
+      {tab === 'laboratory' && (
+        <div className="consultation-grid">
+          <form className="mc-panel consultation-section" onSubmit={submitLaboratoryRequest}>
+            <div className="consultation-section-heading"><TestTube2 size={18}/><div><h3>Request Laboratory Tests</h3><p>Select investigations for the current patient</p></div></div>
+            {patient && (
+              <div className="rounded-lg border border-slate-100 bg-slate-50 p-3 text-sm">
+                <strong className="text-slate-800">{patientName}</strong>
+                <span className="ml-2 text-slate-500">{patient.patientNumber ? `Patient ID: ${patient.patientNumber}` : `Patient ID: PT-${patient.id}`}</span>
+              </div>
+            )}
+            <label className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-slate-400">
+              <SearchIcon />
+              <input className="w-full outline-none text-sm text-slate-700" value={labSearch} onChange={e=>setLabSearch(e.target.value)} placeholder="Search test name, code or category"/>
+            </label>
+            <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
+              {filteredLabTests.length === 0 ? <p className="consultation-empty">No laboratory tests found.</p> : filteredLabTests.map(test => {
+                const selected = selectedLabTestIds.includes(Number(test.id))
+                return (
+                  <label key={test.id} className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${selected ? 'border-teal-300 bg-teal-50/40' : 'border-slate-200'}`}>
+                    <input type="checkbox" checked={selected} onChange={e=>{
+                      const id=Number(test.id)
+                      setSelectedLabTestIds(current=>e.target.checked?[...new Set([...current,id])]:current.filter(value=>value!==id))
+                    }} className="mt-0.5 accent-teal-700"/>
+                    <span><strong className="block text-sm text-slate-800">{test.name}</strong><small className="mt-1 block text-slate-500">{test.code} · {test.category ?? 'General'} · {test.sampleType ?? 'Sample not specified'}{test.referenceRange ? ` · Ref: ${test.referenceRange}` : ''}</small></span>
+                  </label>
+                )
+              })}
+            </div>
+            {selectedLabTestIds.length > 0 && (
+              <div className="rounded-lg border border-slate-100 p-3">
+                <strong className="text-xs text-slate-600">Selected investigations ({selectedLabTestIds.length})</strong>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {labTests.filter(test=>selectedLabTestIds.includes(Number(test.id))).map(test=><span key={test.id} className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-700">{test.name}</span>)}
+                </div>
+              </div>
+            )}
+            <label className="text-sm font-medium text-slate-700">Clinical notes / reason<textarea rows={4} value={labNotes} onChange={e=>setLabNotes(e.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 p-2.5"/></label>
+            <button type="submit" className="consultation-save mt-1" disabled={labSubmitting || selectedLabTestIds.length === 0}><TestTube2 size={16}/>{labSubmitting ? 'Submitting...' : 'Submit Laboratory Request'}</button>
+          </form>
+
+          <section className="mc-panel consultation-section">
+            <div className="consultation-section-heading"><History size={18}/><div><h3>Laboratory Request History</h3><p>Existing requests for this patient</p></div></div>
+            {labRequests.length === 0 ? <p className="consultation-empty">No laboratory requests found.</p> : (
+              <div className="consultation-history-list">
+                {labRequests.map(request=>(
+                  <article key={request.id}>
+                    <div><strong>{request.requestNumber ?? `LAB-${request.id}`}</strong><span>{request.createdAt ? new Date(request.createdAt).toLocaleString() : 'Date unavailable'}</span></div>
+                    <p><b>Tests:</b> {request.items?.map((item:Row)=>item.labTest?.name).filter(Boolean).join(', ') || '—'}</p>
+                    <p><b>Requesting doctor:</b> Dr. {request.doctor?.user?.firstName ?? ''} {request.doctor?.user?.lastName ?? ''}</p>
+                    <p><b>Sample status:</b> {request.sampleIdentifier ? 'Collected' : request.status?.replace('_',' ') ?? 'Requested'}{request.sampleRejected ? ' · Rejected' : ''}</p>
+                    <p><b>Result status:</b> {request.items?.length && request.items.every((item:Row)=>item.result?.verifiedAt) ? 'Verified' : request.items?.some((item:Row)=>item.result) ? 'Result entered / pending verification' : 'Pending'}</p>
+                  </article>
+                ))}
+              </div>
+            )}
           </section>
         </div>
       )}
@@ -443,4 +543,8 @@ export default function DoctorConsultation() {
 
 function ActivityIcon() {
   return <Stethoscope size={18}/>
+}
+
+function SearchIcon() {
+  return <span aria-hidden="true" className="text-sm">⌕</span>
 }

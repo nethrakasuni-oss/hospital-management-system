@@ -61,6 +61,22 @@ function Sidebar({
           return item.path === '/dashboard' || item.path === '/patient-queue'
         }
 
+        if (role === 'NURSE') {
+          return item.path === '/dashboard' || item.path === '/nursing'
+        }
+
+        if (role === 'PHARMACIST') {
+          return item.path === '/dashboard' || item.path === '/pharmacy' || item.path === '/procurement'
+        }
+
+        if (role === 'ACCOUNTANT') {
+          return item.path === '/dashboard' || item.path === '/billing' || item.path === '/procurement'
+        }
+
+        if (['LAB_TECHNICIAN','LAB_MANAGER','PATHOLOGIST'].includes(role ?? '')) {
+          return item.path === '/dashboard' || item.path === '/laboratory'
+        }
+
         return item.path === '/dashboard'
       }),
     }))

@@ -28,6 +28,8 @@ export class StaffRegistrationService {
       'ACCOUNTANT',
       'HR_MANAGER',
       'INVENTORY_MANAGER',
+      'LAB_MANAGER',
+      'PATHOLOGIST',
     ];
 
     if (!allowedRoles.includes(roleName)) {

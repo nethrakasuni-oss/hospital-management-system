@@ -37,6 +37,11 @@ import DoctorSchedules from './pages/DoctorSchedules'
 import DoctorDashboard from './pages/DoctorDashboard'
 import DoctorPatientQueue from './pages/DoctorPatientQueue'
 import DoctorConsultation from './pages/DoctorConsultation'
+import NursingOperations from './pages/NursingOperations'
+import PharmacyManagement from './pages/PharmacyManagement'
+import LaboratoryManagement from './pages/LaboratoryManagement'
+import Billing from './pages/Billing'
+import Procurement from './pages/Procurement'
 
 interface LoginResponse {
   accessToken: string
@@ -352,6 +357,14 @@ function RoleDashboard() {
     return <DoctorDashboard />
   }
 
+  if (user?.role?.toUpperCase() === 'NURSE') {
+    return <NursingOperations />
+  }
+
+  if (user?.role?.toUpperCase() === 'PHARMACIST') {
+    return <PharmacyManagement />
+  }
+
   return <Dashboard />
 }
 
@@ -388,7 +401,6 @@ function App() {
             <Route path="/patients" element={<Patients />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/emergency" element={<Emergency />} />
-            <Route path="/billing" element={<ModuleWorkspace moduleKey="billing" />} />
           </Route>
 
           {/* Patient profiles may be viewed by their assigned clinical staff */}
@@ -414,6 +426,41 @@ function App() {
             <Route path="/patient-queue/:appointmentId" element={<DoctorConsultation />} />
           </Route>
 
+          {/* Nurse inpatient care workspace */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['NURSE', 'ADMIN']} />
+          }>
+            <Route path="/nursing" element={<NursingOperations />} />
+          </Route>
+
+          {/* Pharmacist and administrator pharmacy workspace */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'PHARMACIST', 'DOCTOR', 'NURSE']} />
+          }>
+            <Route path="/pharmacy" element={<PharmacyManagement />} />
+          </Route>
+
+          {/* Billing and payments workspace */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['ADMIN','RECEPTIONIST','ACCOUNTANT']} />
+          }>
+            <Route path="/billing" element={<Billing/>} />
+          </Route>
+
+          {/* Pharmacy procurement workspace */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['ADMIN','PHARMACIST','ACCOUNTANT']} />
+          }>
+            <Route path="/procurement" element={<Procurement/>} />
+          </Route>
+
+          {/* Laboratory and diagnostics workspace */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'DOCTOR', 'NURSE', 'LAB_TECHNICIAN', 'LAB_MANAGER', 'PATHOLOGIST', 'RECEPTIONIST']} />
+          }>
+            <Route path="/laboratory" element={<LaboratoryManagement />} />
+          </Route>
+
 
           {/* Administrator only */}
           <Route element={
@@ -422,14 +469,10 @@ function App() {
             <Route path="/doctors" element={<ModuleWorkspace moduleKey="doctors" />} />
             <Route path="/departments" element={<ModuleWorkspace moduleKey="departments" />} />
             <Route path="/admissions" element={<AdmissionsBeds />} />
-            <Route path="/nursing" element={<ModuleWorkspace moduleKey="nursing" />} />
             <Route path="/surgeries" element={<SurgeryTheatre />} />
             <Route path="/transfers" element={<ModuleWorkspace moduleKey="transfers" />} />
-            <Route path="/laboratory" element={<ModuleWorkspace moduleKey="laboratory" />} />
-            <Route path="/pharmacy" element={<ModuleWorkspace moduleKey="pharmacy" />} />
             <Route path="/insurance" element={<ModuleWorkspace moduleKey="insurance" />} />
             <Route path="/employees" element={<ModuleWorkspace moduleKey="employees" />} />
-            <Route path="/procurement" element={<ModuleWorkspace moduleKey="procurement" />} />
             <Route path="/administration" element={<Administration />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/medical-records" element={<MedicalRecords />} />

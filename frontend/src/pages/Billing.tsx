@@ -1,55 +1,230 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ReceiptText, CreditCard, Wallet, RefreshCw, Search, Eye, X, AlertCircle } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import axios from 'axios'
+import { CreditCard, Plus, Printer, ReceiptText, RefreshCw, Search, Wallet, X } from 'lucide-react'
 import api from '../lib/api'
+import { useAuth } from '../context/AuthContext'
 
 type Row = Record<string, any>
-type Tab = 'invoices' | 'payments'
-const endpoints: Record<Tab,string> = { invoices:'/billing/invoices', payments:'/billing/payments' }
-const unwrap=(v:any):Row[]=>Array.isArray(v)?v:Array.isArray(v?.data)?v.data:Array.isArray(v?.items)?v.items:[]
-const fmt=(v:any)=>v===null||v===undefined||v===''?'—':typeof v==='object'?(v.name??v.invoiceNo??v.paymentNo??JSON.stringify(v)):String(v)
-const nice=(s:string)=>s.replace(/([A-Z])/g,' $1').replace(/^./,c=>c.toUpperCase())
-const money=(v:any,currency='LKR')=>Number.isFinite(Number(v))?`${currency} ${Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`:'—'
+type InvoiceItem = { description:string; quantity:string; unitPrice:string; sourceType?:string; sourceId?:string }
 
-export default function Billing(){
- const [tab,setTab]=useState<Tab>('invoices')
- const [invoices,setInvoices]=useState<Row[]>([])
- const [payments,setPayments]=useState<Row[]>([])
- const [loading,setLoading]=useState(false)
- const [error,setError]=useState('')
- const [query,setQuery]=useState('')
- const [status,setStatus]=useState('ALL')
- const [selected,setSelected]=useState<Row|null>(null)
- const load=useCallback(async(which:Tab=tab)=>{
-  setLoading(true);setError('')
-  try{const r=await api.get(endpoints[which]);const data=unwrap(r.data);which==='invoices'?setInvoices(data):setPayments(data)}
-  catch(e:any){setError(e?.response?.data?.message?.toString()??`Could not load ${which}. Verify the Billing API route and your permissions.`);which==='invoices'?setInvoices([]):setPayments([])}
-  finally{setLoading(false)}
- },[tab])
- useEffect(()=>{void load(tab)},[tab,load])
- const source=tab==='invoices'?invoices:payments
- const filtered=useMemo(()=>source.filter(r=>{
-  const q=JSON.stringify(r).toLowerCase().includes(query.toLowerCase())
-  const s=status==='ALL'||String(r.status??'').toUpperCase()===status
-  return q&&s
- }),[source,query,status])
- const totalInvoiced=invoices.reduce((s,r)=>s+Number(r.totalAmount??r.total??r.amount??0),0)
- const totalPaid=payments.reduce((s,r)=>s+Number(r.amount??r.paidAmount??0),0)
- const outstanding=invoices.reduce((s,r)=>s+Math.max(0,Number(r.balanceAmount??r.balance??0)),0)
- const preferred=tab==='invoices'?['invoiceNo','patient','patientId','issueDate','dueDate','totalAmount','balanceAmount','status']:['paymentNo','invoiceId','patient','amount','paymentMethod','paymentDate','status']
- const cols=filtered.length?([...preferred.filter(k=>k in filtered[0]),...Object.keys(filtered[0]).filter(k=>!preferred.includes(k)&&!/(password|token)/i.test(k))].slice(0,7)):[]
+const unwrap = (value: unknown): Row[] => {
+  if (Array.isArray(value)) return value as Row[]
+  if (value && typeof value === 'object') {
+    const row = value as Row
+    if (Array.isArray(row.data)) return row.data as Row[]
+  }
+  return []
+}
 
- return <main className="space-y-5">
-  <header className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-widest text-teal-700">FINANCE & REVENUE</p><h1 className="mt-1 text-2xl font-bold text-slate-900">Billing & Payments</h1><p className="mt-1 text-sm text-slate-500">Review invoices, payments and outstanding balances.</p></div><button onClick={()=>void load(tab)} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm font-semibold text-slate-700"><RefreshCw size={16} className={loading?'animate-spin':''}/> Refresh</button></header>
-  <section className="grid gap-3 sm:grid-cols-3">
-   {[{label:'Total invoiced',value:money(totalInvoiced),icon:ReceiptText},{label:'Payments recorded',value:money(totalPaid),icon:CreditCard},{label:'Outstanding balance',value:money(outstanding),icon:Wallet}].map(x=><article key={x.label} className="flex items-center gap-3 rounded-xl border bg-white p-4 shadow-sm"><div className="grid h-10 w-10 place-items-center rounded-lg bg-teal-50 text-teal-700"><x.icon size={19}/></div><div><p className="text-xs text-slate-500">{x.label}</p><p className="text-xl font-bold text-slate-900">{x.value}</p></div></article>)}
-  </section>
-  <section className="rounded-xl border bg-white p-4 shadow-sm">
-   <div className="flex flex-wrap gap-2 border-b pb-4">{(['invoices','payments'] as Tab[]).map(t=><button key={t} onClick={()=>{setTab(t);setQuery('');setStatus('ALL');setSelected(null)}} className={`rounded-lg px-4 py-2 text-sm font-semibold ${tab===t?'bg-[#142B49] text-white':'text-slate-600 hover:bg-slate-100'}`}>{t==='invoices'?'Invoices':'Payments'}</button>)}</div>
-   <div className="flex flex-wrap items-center justify-between gap-3 py-4"><div><h2 className="font-semibold text-slate-900">{tab==='invoices'?'Invoice register':'Payment register'}</h2><p className="text-xs text-slate-500">{endpoints[tab]}</p></div><div className="flex flex-wrap gap-2"><label className="flex items-center gap-2 rounded-lg border px-3 text-slate-400"><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search records" className="w-44 py-2 text-sm text-slate-700 outline-none"/></label><select value={status} onChange={e=>setStatus(e.target.value)} className="rounded-lg border px-3 py-2 text-sm"><option value="ALL">All statuses</option>{['DRAFT','PENDING','PARTIALLY_PAID','PAID','OVERDUE','CANCELLED','COMPLETED','REFUNDED'].map(s=><option key={s}>{s}</option>)}</select></div></div>
-   {error&&<div role="alert" className="mb-3 flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"><AlertCircle size={17}/>{error}</div>}
-   <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr>{cols.map(c=><th key={c} className="px-3 py-3">{nice(c)}</th>)}<th className="px-3 py-3">Details</th></tr></thead><tbody className="divide-y">{loading?<tr><td colSpan={Math.max(cols.length+1,1)} className="p-8 text-center text-slate-500">Loading…</td></tr>:filtered.length===0?<tr><td colSpan={Math.max(cols.length+1,1)} className="p-8 text-center text-slate-500">{error?'Unable to retrieve records.':'No records found.'}</td></tr>:filtered.map((r,i)=><tr key={r.id??i} className="hover:bg-slate-50">{cols.map(c=><td key={c} className="max-w-56 truncate px-3 py-3 text-slate-700">{fmt(r[c])}</td>)}<td className="px-3 py-3"><button onClick={()=>setSelected(r)} className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700"><Eye size={14}/> View</button></td></tr>)}</tbody></table></div>
-   <p className="mt-3 text-xs text-slate-400">Showing {filtered.length} of {source.length} records. Totals are calculated from fields returned by the API.</p>
-  </section>
-  {selected&&<div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-slate-950/50 p-4" onClick={()=>setSelected(null)}><section onClick={e=>e.stopPropagation()} className="my-5 max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl"><div className="mb-4 flex items-center justify-between"><div><h2 className="font-bold">Record details</h2><p className="text-xs text-slate-500">{tab==='invoices'?'Invoice':'Payment'}</p></div><button onClick={()=>setSelected(null)} className="rounded-lg p-2 hover:bg-slate-100"><X size={18}/></button></div><div className="grid gap-3 sm:grid-cols-2">{Object.entries(selected).filter(([k])=>!/(password|token)/i.test(k)).map(([k,v])=><div key={k} className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">{nice(k)}</p><p className="mt-1 break-words text-sm font-medium text-slate-800">{fmt(v)}</p></div>)}</div></section></div>}
- </main>
+const errorText = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const message = error.response?.data?.message
+    return Array.isArray(message) ? message.join(', ') : String(message ?? 'Unable to complete the billing request.')
+  }
+  return error instanceof Error ? error.message : 'Unable to complete the billing request.'
+}
+
+const money = (value: unknown) => `LKR ${Number(value ?? 0).toLocaleString(undefined, { minimumFractionDigits:2, maximumFractionDigits:2 })}`
+
+export default function Billing() {
+  const { user } = useAuth()
+  const role = user?.role?.trim().toUpperCase()
+  const canManage = ['ADMIN','RECEPTIONIST','ACCOUNTANT'].includes(role ?? '')
+  const canCreate = ['ADMIN','RECEPTIONIST','ACCOUNTANT'].includes(role ?? '')
+  const canPay = ['ADMIN','ACCOUNTANT'].includes(role ?? '')
+  const [invoices, setInvoices] = useState<Row[]>([])
+  const [patients, setPatients] = useState<Row[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [search, setSearch] = useState('')
+  const [outstandingOnly, setOutstandingOnly] = useState(false)
+  const [selected, setSelected] = useState<Row | null>(null)
+  const [payments, setPayments] = useState<Row[]>([])
+  const [invoiceModal, setInvoiceModal] = useState(false)
+  const [paymentModal, setPaymentModal] = useState(false)
+  const [invoiceForm, setInvoiceForm] = useState({ patientId:'', dueDate:'', notes:'' })
+  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([{ description:'', quantity:'1', unitPrice:'' }])
+  const [paymentForm, setPaymentForm] = useState({ amount:'', method:'CASH', reference:'' })
+  const [chargePreview, setChargePreview] = useState<Record<string, Row[]>>({})
+  const [dailyCollections, setDailyCollections] = useState<Row | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true); setError('')
+    try {
+      const [invoiceResponse, patientResponse] = await Promise.all([
+        api.get('/billing/invoices', { params: outstandingOnly ? { outstandingOnly:'true' } : {} }),
+        canManage ? api.get('/patients') : Promise.resolve({ data: [] }),
+      ])
+      setInvoices(unwrap(invoiceResponse.data))
+      setPatients(unwrap(patientResponse.data))
+      try {
+        const collectionsResponse = await api.get('/billing/collections/daily')
+        setDailyCollections(collectionsResponse.data)
+      } catch {
+        setDailyCollections(null)
+      }
+    } catch (requestError) { setError(errorText(requestError)); setInvoices([]) }
+    finally { setLoading(false) }
+  }, [canManage, outstandingOnly])
+
+  useEffect(() => { void load() }, [load])
+
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    return invoices.filter(invoice => `${invoice.invoiceNumber ?? ''} ${invoice.patient?.firstName ?? ''} ${invoice.patient?.lastName ?? ''} ${invoice.patient?.patientNumber ?? ''} ${invoice.status ?? ''}`.toLowerCase().includes(query))
+  }, [invoices, search])
+
+  const totals = useMemo(() => invoices.reduce((result, invoice) => {
+    result.invoiced += Number(invoice.totalAmount ?? 0)
+    result.paid += Number(invoice.paidAmount ?? 0)
+    result.outstanding += Number(invoice.balance ?? Math.max(0, Number(invoice.totalAmount ?? 0) - Number(invoice.paidAmount ?? 0)))
+    return result
+  }, { invoiced:0, paid:0, outstanding:0 }), [invoices])
+
+  const openInvoiceDetails = async (invoice: Row) => {
+    setError('')
+    setSelected(invoice)
+    try {
+      const [detailResponse, paymentResponse] = await Promise.all([
+        api.get(`/billing/invoices/${invoice.id}`),
+        api.get(`/billing/invoices/${invoice.id}/payments`),
+      ])
+      setSelected(detailResponse.data)
+      setPayments(unwrap(paymentResponse.data))
+    } catch (requestError) { setError(errorText(requestError)); setPayments([]) }
+  }
+
+  const loadChargePreview = async (patientId: string) => {
+    if (!patientId) { setChargePreview({}); return }
+    try {
+      const response = await api.get(`/billing/charge-preview/${patientId}`)
+      setChargePreview({
+        consultation: unwrap(response.data.consultation),
+        pharmacy: unwrap(response.data.pharmacy),
+        laboratory: unwrap(response.data.laboratory),
+        inpatient: unwrap(response.data.inpatient),
+      })
+    } catch (requestError) { setError(errorText(requestError)); setChargePreview({}) }
+  }
+
+  const addChargePreviewItems = () => {
+    const charges = Object.values(chargePreview).flat()
+    if (charges.length === 0) { setError('No uncharged supported services remain for this patient.'); return }
+    setInvoiceItems(current => [
+      ...current.filter(item => item.description.trim() || item.unitPrice),
+      ...charges.map(charge => ({
+        description:String(charge.description),
+        quantity:String(charge.quantity),
+        unitPrice:String(charge.unitPrice),
+        sourceType:String(charge.sourceType),
+        sourceId:String(charge.sourceId),
+      })),
+    ])
+  }
+
+  const submitInvoice = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!invoiceForm.patientId) { setError('Select a patient.'); return }
+    if (invoiceItems.some(item => !item.description.trim() || !item.quantity || !item.unitPrice)) {
+      setError('Complete every invoice item description, quantity and unit price.')
+      return
+    }
+    setSaving(true); setError(''); setSuccess('')
+    try {
+      await api.post('/billing/invoices', {
+        patientId:Number(invoiceForm.patientId),
+        dueDate:invoiceForm.dueDate || undefined,
+        notes:invoiceForm.notes || undefined,
+        items:invoiceItems.map(item=>({
+          description:item.description.trim(),
+          quantity:Number(item.quantity),
+          unitPrice:Number(item.unitPrice),
+          sourceType:item.sourceType,
+          sourceId:item.sourceId ? Number(item.sourceId) : undefined,
+        })),
+      })
+      setSuccess('Invoice created successfully.')
+      setInvoiceModal(false)
+      setInvoiceForm({ patientId:'', dueDate:'', notes:'' })
+      setInvoiceItems([{ description:'', quantity:'1', unitPrice:'' }])
+      await load()
+    } catch (requestError) { setError(errorText(requestError)) }
+    finally { setSaving(false) }
+  }
+
+  const submitPayment = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!selected) return
+    setSaving(true); setError(''); setSuccess('')
+    try {
+      await api.post(`/billing/invoices/${selected.id}/payments`, {
+        amount:Number(paymentForm.amount),
+        method:paymentForm.method,
+        reference:paymentForm.reference || undefined,
+      })
+      setSuccess('Payment recorded successfully.')
+      setPaymentModal(false)
+      setPaymentForm({ amount:'', method:'CASH', reference:'' })
+      await load()
+      await openInvoiceDetails(selected)
+    } catch (requestError) { setError(errorText(requestError)) }
+    finally { setSaving(false) }
+  }
+
+  return (
+    <div className="mc-dashboard billing-page">
+      <section className="mc-welcome-row"><div><p className="mc-eyebrow">FINANCE WORKSPACE</p><h2>Billing & Payments</h2><p>Create invoices, record payments and track outstanding balances.</p></div><div className="flex gap-2">{canCreate&&<button type="button" className="consultation-save" onClick={()=>setInvoiceModal(true)}><Plus size={16}/> Create invoice</button>}<button type="button" className="mc-secondary-button" onClick={()=>void load()} disabled={loading}><RefreshCw size={15} className={loading?'mc-spin':''}/> Refresh</button></div></section>
+      {error&&<div role="alert" className="doctor-error">{error}</div>}
+      {success&&<div role="status" className="consultation-success">{success}</div>}
+      <section className="nursing-cards">
+        <article><span><ReceiptText size={20}/></span><div><strong>{money(totals.invoiced)}</strong><p>Total invoiced</p></div></article>
+        <article><span><CreditCard size={20}/></span><div><strong>{money(totals.paid)}</strong><p>Payments recorded</p></div></article>
+        <article><span><Wallet size={20}/></span><div><strong>{money(totals.outstanding)}</strong><p>Outstanding balance</p></div></article>
+      </section>
+      {dailyCollections&&(
+        <section className="mc-panel">
+          <div className="consultation-section-heading"><ReceiptText size={18}/><div><h3>Daily Collection Summary</h3><p>{dailyCollections.date}</p></div></div>
+          <div className="nursing-monitoring">
+            <div><span>Payments</span><strong>{dailyCollections.paymentCount}</strong></div>
+            <div><span>Total collected</span><strong>{money(dailyCollections.totalCollected)}</strong></div>
+            {dailyCollections.byMethod?.map((entry:Row)=><div key={entry.method}><span>{entry.method}</span><strong>{money(entry.amount)}</strong></div>)}
+          </div>
+        </section>
+      )}
+      <section className="mc-panel pharmacy-table-panel">
+        <div className="pharmacy-toolbar"><label><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search invoice or patient"/></label><label className="nursing-check"><input type="checkbox" checked={outstandingOnly} onChange={e=>setOutstandingOnly(e.target.checked)}/> Outstanding only</label></div>
+        <div className="doctor-table-wrap"><table className="doctor-table"><thead><tr><th>Invoice</th><th>Patient</th><th>Date</th><th>Due date</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead><tbody>
+          {loading?<tr><td colSpan={9} className="doctor-empty">Loading invoices...</td></tr>:filtered.length===0?<tr><td colSpan={9} className="doctor-empty">No invoices found.</td></tr>:filtered.map(invoice=><tr key={invoice.id}><td className="doctor-appointment-no">{invoice.invoiceNumber??`INV-${invoice.id}`}</td><td>{invoice.patient?.firstName} {invoice.patient?.lastName}</td><td>{invoice.createdAt?new Date(invoice.createdAt).toLocaleDateString(): '—'}</td><td>{invoice.dueDate?new Date(invoice.dueDate).toLocaleDateString(): '—'}</td><td>{money(invoice.totalAmount)}</td><td>{money(invoice.paidAmount)}</td><td>{money(invoice.balance)}</td><td><span className="doctor-status confirmed">{invoice.paymentStatus??invoice.status}</span></td><td><button type="button" className="doctor-view-button" onClick={()=>void openInvoiceDetails(invoice)}>View</button></td></tr>)}
+        </tbody></table></div>
+      </section>
+
+      {selected && (
+        <div className="mc-modal-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setSelected(null)}}>
+          <section className="mc-detail-modal">
+            <div className="consultation-header"><div><p className="mc-eyebrow">INVOICE DETAILS</p><h2>{selected.invoiceNumber ?? `INV-${selected.id}`}</h2><p>{selected.patient?.firstName} {selected.patient?.lastName}</p></div><button type="button" className="mc-icon-button" onClick={()=>setSelected(null)}><X size={18}/></button></div>
+            <button type="button" className="mc-secondary-button mb-3" onClick={()=>window.print()}><Printer size={16}/> Print invoice</button>
+            <div className="nursing-monitoring"><div><span>Total</span><strong>{money(selected.totalAmount)}</strong></div><div><span>Paid</span><strong>{money(selected.paidAmount)}</strong></div><div><span>Balance</span><strong>{money(selected.balance)}</strong></div><div><span>Status</span><strong>{selected.paymentStatus ?? selected.status}</strong></div></div>
+            {selected.items?.length>0&&<div className="nursing-history"><h3>Invoice items</h3>{selected.items.map((item:Row)=><article key={item.id}><strong>{item.description}</strong><p>Quantity {item.quantity} · Unit price {money(item.unitPrice)} · Total {money(item.total)}</p></article>)}</div>}
+            {payments.length>0&&<div className="nursing-history"><h3>Payment history</h3>{payments.map(payment=><article key={payment.id}><strong>{money(payment.amount)} · {payment.method}</strong><p>{payment.createdAt?new Date(payment.createdAt).toLocaleString(): '—'} · {payment.reference ?? 'No reference'}</p><button type="button" className="doctor-view-button mt-2" onClick={()=>window.print()}><Printer size={14}/> Print receipt</button></article>)}</div>}
+            {canPay&&Number(selected.balance ?? Math.max(0,Number(selected.totalAmount??0)-Number(selected.paidAmount??0)))>0&&<button type="button" className="consultation-save mt-4" onClick={()=>setPaymentModal(true)}><CreditCard size={16}/> Record payment</button>}
+          </section>
+        </div>
+      )}
+
+      {paymentModal&&selected&&(
+        <div className="mc-modal-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setPaymentModal(false)}}><form className="mc-detail-modal" onSubmit={submitPayment}><div className="consultation-header"><div><p className="mc-eyebrow">RECORD PAYMENT</p><h2>{selected.invoiceNumber}</h2></div><button type="button" className="mc-icon-button" onClick={()=>setPaymentModal(false)}><X size={18}/></button></div><div className="nursing-fields mt-4"><label>Amount *<input required type="number" min="0.01" step="0.01" max={Number(selected.balance)} value={paymentForm.amount} onChange={e=>setPaymentForm({...paymentForm,amount:e.target.value})}/></label><label>Payment method<select value={paymentForm.method} onChange={e=>setPaymentForm({...paymentForm,method:e.target.value})}><option>CASH</option><option>CARD</option><option>BANK_TRANSFER</option><option>CHEQUE</option><option>INSURANCE</option><option>OTHER</option></select></label><label className="full">Reference<input value={paymentForm.reference} onChange={e=>setPaymentForm({...paymentForm,reference:e.target.value})}/></label></div><button type="submit" className="consultation-save mt-4" disabled={saving}>Save payment</button></form></div>
+      )}
+
+      {invoiceModal&&(
+        <div className="mc-modal-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setInvoiceModal(false)}}><form className="mc-detail-modal" onSubmit={submitInvoice}><div className="consultation-header"><div><p className="mc-eyebrow">NEW INVOICE</p><h2>Create invoice</h2></div><button type="button" className="mc-icon-button" onClick={()=>setInvoiceModal(false)}><X size={18}/></button></div>        <div className="nursing-fields mt-4"><label className="full">Patient *<select required value={invoiceForm.patientId} onChange={e=>{setInvoiceForm({...invoiceForm,patientId:e.target.value});void loadChargePreview(e.target.value)}}><option value="">Select patient</option>{patients.map(patient=><option key={patient.id} value={patient.id}>{patient.firstName} {patient.lastName} · {patient.patientNumber}</option>)}</select></label><label>Due date<input type="date" value={invoiceForm.dueDate} onChange={e=>setInvoiceForm({...invoiceForm,dueDate:e.target.value})}/></label><label className="full">Notes<textarea rows={2} value={invoiceForm.notes} onChange={e=>setInvoiceForm({...invoiceForm,notes:e.target.value})}/></label></div>
+          <div className="nursing-history"><h3>Invoice items</h3>{invoiceItems.map((item,index)=><article key={index}><div className="nursing-fields"><label className="full">Description *<input required value={item.description} onChange={e=>setInvoiceItems(current=>current.map((row,rowIndex)=>rowIndex===index?{...row,description:e.target.value}:row))}/></label><label>Quantity *<input required type="number" min="1" value={item.quantity} onChange={e=>setInvoiceItems(current=>current.map((row,rowIndex)=>rowIndex===index?{...row,quantity:e.target.value}:row))}/></label><label>Unit price *<input required type="number" min="0" step="0.01" value={item.unitPrice} onChange={e=>setInvoiceItems(current=>current.map((row,rowIndex)=>rowIndex===index?{...row,unitPrice:e.target.value}:row))}/></label></div>{invoiceItems.length>1&&<button type="button" className="doctor-view-button mt-2" onClick={()=>setInvoiceItems(current=>current.filter((_,rowIndex)=>rowIndex!==index))}>Remove</button>}</article>)}</div>
+          <button type="button" className="doctor-view-button mt-3" onClick={()=>setInvoiceItems(current=>[...current,{description:'',quantity:'1',unitPrice:''}])}>Add item</button>
+          {invoiceForm.patientId&&<button type="button" className="doctor-view-button mt-3 ml-2" onClick={addChargePreviewItems}>Add supported service charges</button>}
+          <button type="submit" className="consultation-save mt-4" disabled={saving}>Create invoice</button>
+        </form></div>
+      )}
+    </div>
+  )
 }
