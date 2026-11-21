@@ -309,58 +309,6 @@ this workflow as fully implemented.
 The reset-token lifetime defaults to 15 minutes through
 `PASSWORD_RESET_TOKEN_EXPIRY_MINUTES`.
 
-## Role Access Matrix
-
-This is a high-level guide, not a replacement for actual backend
-`@Roles` and `@Permissions` declarations.
-
-  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  Module / Operation        ADMIN   RECEPTIONIST       ACCOUNTANT      DOCTOR                  NURSE                     PHARMACIST   LAB_TECHNICIAN   HR_MANAGER   INVENTORY_MANAGER
-  ------------------------- ------- ------------------ --------------- ----------------------- ------------------------- ------------ ---------------- ------------ -------------------
-  Dashboard                 Yes     Yes                Yes             Yes                     Yes                       Yes          Verify           Yes          Verify
-
-  Patient                   Yes     Yes                No general      Clinical view           Verify                    No general   No general       Verify       No
-  registration/management                              access                                                            access       access                        
-
-  Patient profile           Yes     Yes                Restricted      Yes                     Verify                    Restricted   Restricted       Restricted   No
-
-  Appointments              Yes     Yes                No              Own/assigned workflow   Emergency view            No           No               No           No
-
-  Doctor                    Yes     No                 No              No                      No                        No           No               Yes          No
-  management/schedules                                                                                                                                              
-
-  Nursing operations        Yes     No                 No              Clinical access only    Yes                       No           No               No           No
-
-  Pharmacy/prescriptions    Yes     Limited            Reports/stock   Clinical/prescription   Clinical/administration   Yes          No               No           No
-                                                       reports         access                  access                                                               
-
-  Billing/payments          Yes     Yes                Yes             No                      No                        No           No               No           No
-
-  Insurance                 Yes     Yes                Yes             Claim visibility        No                        No           No               Limited      No
-
-  Laboratory                Yes     Intake/available   No              Clinical/request access Available routes          No           Yes, if          No           No
-                                    routes                                                                                            configured                    
-
-  Admissions & beds         Yes     Verify             No              Patient admission       Inpatient care access     No           No               No           No
-                                                                       visibility                                                                                   
-
-  HR/employee operations    Yes     No                 No              No                      No                        No           No               Assigned     No
-                                                                                                                                                       functions    
-
-  Inventory                 Yes     No                 Permitted       No                      No                        Pharmacy     No               No           Verify
-                                                       reports/stock                                                     stock                                      
-                                                       access                                                                                                       
-  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-**Legend** - **Yes:** Established access in inspected application
-configuration or discussed workflow. - **Limited / Restricted /
-Verify:** Access is partial, conditional or must be checked against
-current backend permissions. - **No:** Not part of the described role
-workflow.
-
-Backend authorization is authoritative. A frontend menu or route is not
-a security control by itself.
-
 ## Authentication and Security
 
 -   JWT bearer tokens protect authenticated API routes.
