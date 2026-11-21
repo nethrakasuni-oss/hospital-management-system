@@ -7,7 +7,7 @@ const patient=(p:any)=>p?[p.firstName,p.lastName].filter(Boolean).join(' ')||`#$
 export default function PatientTransfers(){
  const [rows,S]=useState<R[]>([]),[patients,P]=useState<R[]>([]),[wards,W]=useState<R[]>([]),[busy,B]=useState(true),[err,E]=useState(''),[q,Q]=useState(''),[status,T]=useState(''),[open,O]=useState(false),[saving,V]=useState(false)
  const [f,F]=useState({patientId:'',admissionId:'',fromWardId:'',toWardId:'',fromBedId:'',toBedId:'',reason:'',notes:''})
- const load=useCallback(async()=>{B(true);E('');const rs=await Promise.allSettled([api.get('/patient-transfers'),api.get('/patients'),api.get('/wards')]);if(rs[0].status==='fulfilled')S(arr(rs[0].value.data));else E('Unable to load transfers.');if(rs[1].status==='fulfilled')P(arr(rs[1].value.data));if(rs[2].status==='fulfilled')W(arr(rs[2].value.data));B(false)},[])
+ const load=useCallback(async()=>{B(true);E('');const rs=await Promise.allSettled([api.get('/patient-transfers'),api.get('/patients'),api.get('/inpatient/wards')]);if(rs[0].status==='fulfilled')S(arr(rs[0].value.data));else E('Unable to load transfers.');if(rs[1].status==='fulfilled')P(arr(rs[1].value.data));if(rs[2].status==='fulfilled')W(arr(rs[2].value.data));B(false)},[])
  useEffect(()=>{void load()},[load])
  const list=useMemo(()=>rows.filter(r=>(`${patient(r.patient)} ${r.reason??''} ${r.id}`).toLowerCase().includes(q.toLowerCase())&&(!status||r.status===status)),[rows,q,status])
  const action=async(id:number,a:string,notes?:string)=>{try{await api.patch(`/patient-transfers/${id}/${a}`,a==='reject'?{notes}:{});await load()}catch(e:any){E(e?.response?.data?.message??'Unable to update transfer.')}}

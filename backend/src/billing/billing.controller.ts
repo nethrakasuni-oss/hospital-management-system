@@ -1,5 +1,5 @@
 import {
-  BadRequestException, Body, Controller, Get, Param, ParseIntPipe,
+  BadRequestException, Body, Controller, Get, Param,Patch, ParseIntPipe,
   Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth/jwt-auth.guard.js';
@@ -9,6 +9,7 @@ import { BillingService } from './services/billing.service.js';
 import { CreateInvoiceDto } from './dto/create-invoice.dto.js';
 import { CreatePaymentDto } from './dto/create-payment.dto.js';
 import { CreateRefundDto } from './dto/create-refund.dto.js';
+import { RejectInvoiceDto } from './dto/reject-invoice.dto.js';
 import { Permissions } from '../auth/permissions/permissions.decorator.js';
 import { PermissionsGuard } from '../auth/permissions/permissions.guard.js';
 
@@ -26,7 +27,7 @@ export class BillingController {
   }
 
   @Post('invoices')
-  @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
+  @Roles('ADMIN', 'RECEPTIONIST')
   @Permissions('INVOICE_CREATE')
   createInvoice(@Body() dto: CreateInvoiceDto, @Req() req: any) {
     return this.billing.createInvoice(dto, req.user.userId);
@@ -59,11 +60,41 @@ export class BillingController {
     });
   }
 
+  @Get('invoices/pending-verification')
+  @Roles('ADMIN', 'ACCOUNTANT')
+  pendingVerification() {
+    return this.billing.pendingVerification();
+  }
+
   @Get('invoices/:id')
   @Roles('ADMIN', 'RECEPTIONIST', 'ACCOUNTANT')
   @Permissions('INVOICE_VIEW')
   findInvoice(@Param('id', ParseIntPipe) id: number) {
     return this.billing.findInvoice(id);
+  }
+
+  @Patch('invoices/:id')
+  @Roles('ADMIN', 'RECEPTIONIST')
+  updateInvoice(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateInvoiceDto, @Req() req: any) {
+    return this.billing.updateInvoice(id, dto, req.user.userId);
+  }
+
+  @Post('invoices/:id/submit')
+  @Roles('ADMIN', 'RECEPTIONIST')
+  submitInvoice(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.billing.submitInvoice(id, req.user.userId);
+  }
+
+  @Post('invoices/:id/verify')
+  @Roles('ADMIN', 'ACCOUNTANT')
+  verifyInvoice(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.billing.verifyInvoice(id, req.user.userId);
+  }
+
+  @Post('invoices/:id/reject')
+  @Roles('ADMIN', 'ACCOUNTANT')
+  rejectInvoice(@Param('id', ParseIntPipe) id: number, @Body() dto: RejectInvoiceDto, @Req() req: any) {
+    return this.billing.rejectInvoice(id, dto.reason, req.user.userId);
   }
 
   @Post('invoices/:id/payments')

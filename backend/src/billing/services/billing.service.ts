@@ -102,6 +102,7 @@ export class BillingService {
             discountAmount,
             taxAmount,
             status: 'ISSUED',
+            verificationStatus: 'DRAFT',
             dueDate: dto.dueDate ? new Date(dto.dueDate) : null,
             notes: dto.notes?.trim() || null,
             patientId: dto.patientId,
@@ -320,11 +321,80 @@ export class BillingService {
     };
   }
 
+  async updateInvoice(invoiceId: number, dto: CreateInvoiceDto, userId: number) {
+    if (!dto.items?.length) throw new BadRequestException('At least one invoice item is required');
+    return this.prisma.$transaction(async tx => {
+      const current = await tx.invoice.findUnique({ where: { id: invoiceId }, include: { items: true } });
+      if (!current) throw new NotFoundException('Invoice not found');
+      if (!['DRAFT', 'REJECTED'].includes(current.verificationStatus)) throw new BadRequestException('Only draft or rejected invoices can be edited');
+      if (!current.paidAmount.equals(0)) throw new BadRequestException('An invoice with payments cannot be edited');
+      if (dto.patientId !== current.patientId) throw new BadRequestException('Invoice patient cannot be changed');
+      await tx.invoiceItem.deleteMany({ where: { invoiceId } });
+      const items = [];
+      for (const item of dto.items) items.push(await this.resolvePricedItem(tx, dto.patientId, { description: item.description, quantity: item.quantity, unitPrice: item.unitPrice, sourceType: item.sourceType?.trim() || null, sourceId: item.sourceId ?? null }));
+      const subtotal = items.reduce((sum, item) => sum.add(item.total), new Prisma.Decimal(0));
+      const discount = new Prisma.Decimal(dto.discountAmount ?? current.discountAmount);
+      const tax = new Prisma.Decimal(dto.taxAmount ?? current.taxAmount);
+      if (discount.greaterThan(subtotal)) throw new BadRequestException('Discount cannot exceed invoice item total');
+      const total = subtotal.sub(discount).add(tax);
+      const updated = await tx.invoice.update({ where: { id: invoiceId }, data: { totalAmount: total, discountAmount: discount, taxAmount: tax, dueDate: dto.dueDate ? new Date(dto.dueDate) : current.dueDate, notes: dto.notes ?? current.notes, verificationStatus: 'DRAFT', submittedAt: null, rejectionReason: null, rejectedAt: null, rejectedById: null, items: { create: items } }, include: { patient: true, items: true, payments: true } });
+      await tx.auditLog.create({ data: { action: 'UPDATE_DRAFT', entity: 'Invoice', entityId: String(invoiceId), userId, oldData: { totalAmount: current.totalAmount.toString(), verificationStatus: current.verificationStatus }, newData: { totalAmount: total.toString(), verificationStatus: 'DRAFT' } } });
+      return updated;
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
+  async submitInvoice(invoiceId: number, userId: number) {
+    const invoice = await this.prisma.invoice.findUnique({ where: { id: invoiceId } });
+    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (!['DRAFT', 'REJECTED'].includes(invoice.verificationStatus)) {
+      throw new BadRequestException('Only draft or rejected invoices can be submitted');
+    }
+    const updated = await this.prisma.$transaction(async tx => {
+      const row = await tx.invoice.update({ where: { id: invoiceId }, data: {
+        verificationStatus: 'PENDING_REVIEW', submittedAt: new Date(),
+        rejectionReason: null, rejectedAt: null, rejectedById: null,
+      }, include: { patient: true, items: true } });
+      await tx.auditLog.create({ data: { action: 'SUBMIT_FOR_VERIFICATION', entity: 'Invoice', entityId: String(invoiceId), userId, oldData: { verificationStatus: invoice.verificationStatus }, newData: { verificationStatus: row.verificationStatus } } });
+      return row;
+    });
+    return updated;
+  }
+
+  pendingVerification() {
+    return this.prisma.invoice.findMany({ where: { verificationStatus: 'PENDING_REVIEW' }, include: { patient: true, items: true, payments: true }, orderBy: { submittedAt: 'asc' } });
+  }
+
+  async verifyInvoice(invoiceId: number, userId: number) {
+    return this.prisma.$transaction(async tx => {
+      const invoice = await tx.invoice.findUnique({ where: { id: invoiceId } });
+      if (!invoice) throw new NotFoundException('Invoice not found');
+      if (invoice.verificationStatus !== 'PENDING_REVIEW') throw new BadRequestException('Only pending invoices can be verified');
+      const updated = await tx.invoice.update({ where: { id: invoiceId }, data: { verificationStatus: 'VERIFIED', verifiedAt: new Date(), verifiedById: userId, rejectionReason: null, rejectedAt: null, rejectedById: null }, include: { patient: true, items: true } });
+      await tx.auditLog.create({ data: { action: 'VERIFY', entity: 'Invoice', entityId: String(invoiceId), userId, oldData: { verificationStatus: invoice.verificationStatus }, newData: { verificationStatus: updated.verificationStatus } } });
+      return updated;
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
+  async rejectInvoice(invoiceId: number, reason: string, userId: number) {
+    const cleanReason = reason.trim();
+    if (cleanReason.length < 3) throw new BadRequestException('A rejection reason is required');
+    return this.prisma.$transaction(async tx => {
+      const invoice = await tx.invoice.findUnique({ where: { id: invoiceId } });
+      if (!invoice) throw new NotFoundException('Invoice not found');
+      if (invoice.verificationStatus !== 'PENDING_REVIEW') throw new BadRequestException('Only pending invoices can be rejected');
+      const updated = await tx.invoice.update({ where: { id: invoiceId }, data: { verificationStatus: 'REJECTED', rejectionReason: cleanReason, rejectedAt: new Date(), rejectedById: userId }, include: { patient: true, items: true } });
+      await tx.auditLog.create({ data: { action: 'REJECT', entity: 'Invoice', entityId: String(invoiceId), userId, oldData: { verificationStatus: invoice.verificationStatus }, newData: { verificationStatus: updated.verificationStatus, rejectionReason: cleanReason } } });
+      return updated;
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+  }
+
   async recordPayment(invoiceId: number, dto: CreatePaymentDto, userId: number) {
     try {
       return await this.prisma.$transaction(async (tx) => {
         const invoice = await tx.invoice.findUnique({ where: { id: invoiceId } });
         if (!invoice) throw new NotFoundException('Invoice not found');
+
+        if (invoice.verificationStatus !== 'VERIFIED') throw new BadRequestException('Only verified invoices can receive payments');
 
         const amount = new Prisma.Decimal(dto.amount);
         const balance = invoice.totalAmount.sub(invoice.paidAmount);

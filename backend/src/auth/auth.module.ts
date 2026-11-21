@@ -8,7 +8,9 @@ import { JwtStrategy } from './jwt.strategy/jwt.strategy.js';
 
 import { UsersModule } from '../users/users.module.js';
 import { PermissionsGuard } from './permissions/permissions.guard.js';
+import { EmailService } from './email/email.service.js';
 
+import { PasswordResetService } from './password-reset/password-reset.service.js';
 @Module({
   imports: [
     UsersModule,
@@ -27,6 +29,8 @@ import { PermissionsGuard } from './permissions/permissions.guard.js';
     AuthService,
     JwtStrategy,
     PermissionsGuard,
+    EmailService,
+    PasswordResetService,
   ],
 
   exports: [PermissionsGuard],

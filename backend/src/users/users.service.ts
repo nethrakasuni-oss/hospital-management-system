@@ -7,13 +7,21 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   findByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: { email },
-      include: {
-        role: true,
+  return this.prisma.user.findUnique({
+    where: { email },
+    include: {
+      role: {
+        include: {
+          rolePermissions: {
+            include: {
+              permission: true,
+            },
+          },
+        },
       },
-    });
-  }
+    },
+  });
+}
 
   findById(id: number) {
     return this.prisma.user.findUnique({
