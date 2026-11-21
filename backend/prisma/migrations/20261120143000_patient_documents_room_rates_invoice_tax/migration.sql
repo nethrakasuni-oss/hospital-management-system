@@ -5,7 +5,6 @@ ALTER TABLE "Room" ADD COLUMN "dailyRate" DECIMAL(12,2);
 ALTER TABLE "Invoice" ADD COLUMN "discountAmount" DECIMAL(12,2) NOT NULL DEFAULT 0;
 ALTER TABLE "Invoice" ADD COLUMN "taxAmount" DECIMAL(12,2) NOT NULL DEFAULT 0;
 
-CREATE INDEX "InvoiceItem_sourceType_sourceId_idx" ON "InvoiceItem"("sourceType", "sourceId");
 
 CREATE TABLE "PatientDocument" (
     "id" SERIAL NOT NULL,
@@ -27,3 +26,4 @@ CREATE INDEX "PatientDocument_patientId_createdAt_idx" ON "PatientDocument"("pat
 
 ALTER TABLE "PatientDocument" ADD CONSTRAINT "PatientDocument_patientId_fkey" FOREIGN KEY ("patientId") REFERENCES "Patient"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "PatientDocument" ADD CONSTRAINT "PatientDocument_uploadedById_fkey" FOREIGN KEY ("uploadedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+

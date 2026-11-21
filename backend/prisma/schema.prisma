@@ -129,6 +129,13 @@ enum InsuranceClaimStatus {
   CANCELLED
 }
 
+enum InvoiceVerificationStatus {
+  DRAFT
+  PENDING_REVIEW
+  VERIFIED
+  REJECTED
+}
+
 enum InvoiceStatus {
   DRAFT
   ISSUED
@@ -228,6 +235,8 @@ model User {
   dispensedPrescriptions      Prescription[]              @relation("PrescriptionDispenser")
   verifiedPrescriptions       Prescription[]              @relation("PrescriptionVerifier")
   reviewedInsuranceClaims     InsuranceClaim[]            @relation("InsuranceClaimReviewer")
+  verifiedInvoices            Invoice[]                    @relation("InvoiceVerifier")
+  rejectedInvoices            Invoice[]                    @relation("InvoiceRejector")
   nursingNotes                NursingNote[]               @relation("NursingNoteAuthor")
   medicationAdministrations   MedicationAdministration[]  @relation("MedicationAdministrationNurse")
   outgoingShiftHandovers      ShiftHandover[]             @relation("ShiftHandoverOutgoing")
@@ -247,7 +256,25 @@ model User {
   requestedTransfers         PatientTransfer[]  @relation("TransferRequester")
   approvedTransfers          PatientTransfer[]  @relation("TransferApprover")
   preparedDischargeSummaries DischargeSummary[] @relation("DischargeSummaryAuthor")
+  passwordResetTokens PasswordResetToken[]
 }
+
+
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 
 model Department {
   id          Int     @id @default(autoincrement())
@@ -954,6 +981,15 @@ model Invoice {
   discountAmount Decimal      @default(0) @db.Decimal(12, 2)
   taxAmount      Decimal      @default(0) @db.Decimal(12, 2)
   status        InvoiceStatus @default(ISSUED)
+  verificationStatus InvoiceVerificationStatus @default(DRAFT)
+  submittedAt DateTime?
+  verifiedAt DateTime?
+  verifiedById Int?
+  verifiedBy User? @relation("InvoiceVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  rejectedAt DateTime?
+  rejectedById Int?
+  rejectedBy User? @relation("InvoiceRejector", fields: [rejectedById], references: [id], onDelete: SetNull)
+  rejectionReason String?
   dueDate       DateTime?     @db.Date
   notes         String?
 

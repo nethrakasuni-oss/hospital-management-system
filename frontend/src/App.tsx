@@ -42,6 +42,11 @@ import PharmacyManagement from './pages/PharmacyManagement'
 import LaboratoryManagement from './pages/LaboratoryManagement'
 import Billing from './pages/Billing'
 import Procurement from './pages/Procurement'
+import Insurance from './pages/Insurance'
+import AccountantDashboard from './pages/AccountantDashboard'
+import ReportsAnalytics from './pages/ReportsAnalytics'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 interface LoginResponse {
   accessToken: string
@@ -299,12 +304,12 @@ function LoginPage() {
               </label>
 
               <button
-                type="button"
-                onClick={() => setError('Password recovery is not available yet.')}
-                className="text-sm text-teal-700 font-semibold hover:text-teal-900"
-              >
-                Forgot password?
-              </button>
+  type="button"
+  onClick={() => navigate('/forgot-password')}
+  className="text-sm text-teal-700 font-semibold hover:text-teal-900"
+>
+  Forgot password?
+</button>
 
             </div>
 
@@ -365,6 +370,10 @@ function RoleDashboard() {
     return <PharmacyManagement />
   }
 
+  if (user?.role?.toUpperCase() === 'ACCOUNTANT') {
+    return <AccountantDashboard />
+  }
+
   return <Dashboard />
 }
 
@@ -384,6 +393,8 @@ function App() {
       />
 
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
@@ -462,6 +473,16 @@ function App() {
           </Route>
 
 
+          {/* Insurance: operational entry by Receptionist, review by Accountant, full access Admin */}
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'RECEPTIONIST', 'ACCOUNTANT']} />}>
+            <Route path="/insurance" element={<Insurance />} />
+          </Route>
+
+          {/* Reports are filtered by role in the page and enforced by API permissions */}
+          <Route element={<ProtectedRoute allowedRoles={['ADMIN', 'ACCOUNTANT']} />}>
+            <Route path="/reports" element={<ReportsAnalytics />} />
+          </Route>
+
           {/* Administrator only */}
           <Route element={
             <ProtectedRoute allowedRoles={['ADMIN']} />
@@ -471,7 +492,6 @@ function App() {
             <Route path="/admissions" element={<AdmissionsBeds />} />
             <Route path="/surgeries" element={<SurgeryTheatre />} />
             <Route path="/transfers" element={<ModuleWorkspace moduleKey="transfers" />} />
-            <Route path="/insurance" element={<ModuleWorkspace moduleKey="insurance" />} />
             <Route path="/employees" element={<ModuleWorkspace moduleKey="employees" />} />
             <Route path="/administration" element={<Administration />} />
             <Route path="/notifications" element={<Notifications />} />

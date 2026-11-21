@@ -4,7 +4,7 @@ import { Activity, Ambulance, BedDouble, Bell, CalendarDays, ChevronDown, Chevro
 import { useAuth } from '../../context/AuthContext'
 
 const groups = [
-  { title: 'OVERVIEW', items: [{ label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }] },
+  { title: 'OVERVIEW', items: [{ label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard }, { label: 'Reports & Analytics', path: '/reports', icon: ClipboardList }] },
   { title: 'PATIENT CARE', items: [
     { label: 'Patient Queue', path: '/patient-queue', icon: Stethoscope },
     { label: 'Patients', path: '/patients', icon: Users }, { label: 'Medical Records', path: '/medical-records', icon: ClipboardList }, { label: 'Appointments', path: '/appointments', icon: CalendarDays },
@@ -31,6 +31,7 @@ const receptionistPaths = [
   '/emergency',
   '/billing',
   '/notifications',
+  '/insurance',
 ]
 
 function Sidebar({
@@ -70,7 +71,7 @@ function Sidebar({
         }
 
         if (role === 'ACCOUNTANT') {
-          return item.path === '/dashboard' || item.path === '/billing' || item.path === '/procurement'
+          return ['/dashboard', '/billing', '/insurance', '/reports'].includes(item.path)
         }
 
         if (['LAB_TECHNICIAN','LAB_MANAGER','PATHOLOGIST'].includes(role ?? '')) {

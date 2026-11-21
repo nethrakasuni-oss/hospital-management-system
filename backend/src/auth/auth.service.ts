@@ -77,6 +77,9 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role.name,
+         permissions: user.role.rolePermissions.map(
+      (rp) => rp.permission.name,
+    ),
       },
     };
   }
