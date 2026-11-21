@@ -1,3 +1,4 @@
+
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 
@@ -6,23 +7,35 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   findByEmail(email: string) {
-    return this.prisma.user.findUnique({
-      where: {
-        email,
+  return this.prisma.user.findUnique({
+    where: { email },
+    include: {
+      role: {
+        include: {
+          rolePermissions: {
+            include: {
+              permission: true,
+            },
+          },
+        },
       },
-      include: {
-        role: true,
-      },
-    });
-  }
+    },
+  });
+}
 
   findById(id: number) {
     return this.prisma.user.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
       include: {
-        role: true,
+        role: {
+          include: {
+            rolePermissions: {
+              include: {
+                permission: true,
+              },
+            },
+          },
+        },
       },
     });
   }

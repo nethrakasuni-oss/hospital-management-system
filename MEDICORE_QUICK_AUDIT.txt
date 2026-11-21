@@ -1,0 +1,2048 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20261120193721
+Username: LAPTOP-EV6ES4CO\User
+RunAs User: LAPTOP-EV6ES4CO\User
+Configuration Name: 
+Machine: LAPTOP-EV6ES4CO (Microsoft Windows NT 10.0.26300.0)
+Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\User\AppData\Local\Programs\Microsoft VS Code\8a14f0cc1b\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 37732
+PSVersion: 5.1.26100.9818
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9818
+BuildVersion: 10.0.26100.9818
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is E:\hospital-management-system\MEDICORE_QUICK_AUDIT.txt
+
+========================================
+MEDICORE HOSPITAL SYSTEM QUICK AUDIT
+========================================
+
+AUDIT DATE:
+
+Friday, November 20, 2026 7:37:21 PM
+
+PROJECT PATH:
+E:\hospital-management-system
+
+PROJECT DIRECTORIES:
+
+Name : .postman
+
+
+Name : backend
+
+
+Name : database
+
+
+Name : docs
+
+
+Name : frontend
+
+
+Name : postman
+
+
+AUDIT REPORT LOCATION:
+E:\hospital-management-system\MEDICORE_QUICK_AUDIT.txt
+
+
+]633;D;0]633;A]633;P;Cwd=E:\x5chospital-management-systemPS E:\hospital-management-system> ]633;B
+PS>Write-Host "`n========== FRONTEND PAGES =========="
+
+Get-ChildItem "$Frontend\src\pages" -File -Recurse |
+Select-Object FullName, Length
+
+Write-Host "`n========== FRONTEND ROUTES =========="
+
+Get-ChildItem "$Frontend\src" -Recurse -File -Include *.tsx,*.ts |
+Where-Object {
+    $_.FullName -notmatch '\\node_modules\\|\\generated\\'
+} |
+Select-String -Pattern '<Route|createBrowserRouter|path=|element=' |
+ForEach-Object {
+    "$($_.Path) | Line $($_.LineNumber) | $($_.Line.Trim())"
+}
+
+Write-Host "`n========== FRONTEND API CONNECTIONS =========="
+
+Get-ChildItem "$Frontend\src" -Recurse -File -Include *.tsx,*.ts |
+Where-Object {
+    $_.FullName -notmatch '\\node_modules\\|\\generated\\'
+} |
+Select-String -Pattern 'api\.(get|post|put|patch|delete)|axios\.(get|post|put|patch|delete)' |
+ForEach-Object {
+    "$($_.Path) | Line $($_.LineNumber) | $($_.Line.Trim())"
+}
+
+Write-Host "`n========== FRONTEND AUTH AND PERMISSIONS =========="
+
+Get-ChildItem "$Frontend\src" -Recurse -File -Include *.tsx,*.ts |
+Where-Object {
+    $_.FullName -notmatch '\\node_modules\\|\\generated\\'
+} |
+Select-String -Pattern 'canCreate|canManage|hasPermission|permissions|ProtectedRoute|role|RECEPTIONIST|ADMIN' |
+Select-Object -First 150 |
+ForEach-Object {
+    "$($_.Path) | Line $($_.LineNumber) | $($_.Line.Trim())"
+}
+
+========== FRONTEND PAGES ==========
+
+
+========== FRONTEND ROUTES ==========
+
+========== FRONTEND API CONNECTIONS ==========
+
+========== FRONTEND AUTH AND PERMISSIONS ==========
+FullName
+--------
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\sr...
+E:\hospital-management-system\frontend\src\App.tsx | Line 380 | <Routes>
+E:\hospital-management-system\frontend\src\App.tsx | Line 381 | <Route
+E:\hospital-management-system\frontend\src\App.tsx | Line 382 | path="/"
+E:\hospital-management-system\frontend\src\App.tsx | Line 383 | element={<Navigate to={home} replace />}
+E:\hospital-management-system\frontend\src\App.tsx | Line 386 | <Route path="/login" element={<LoginPage />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 388 | <Route element={<ProtectedRoute />}>
+E:\hospital-management-system\frontend\src\App.tsx | Line 389 | <Route element={<MainLayout />}>
+E:\hospital-management-system\frontend\src\App.tsx | Line 392 | <Route
+E:\hospital-management-system\frontend\src\App.tsx | Line 393 | path="/dashboard"
+E:\hospital-management-system\frontend\src\App.tsx | Line 394 | element={<RoleDashboard />}
+E:\hospital-management-system\frontend\src\App.tsx | Line 398 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 401 | <Route path="/patients" element={<Patients />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 402 | <Route path="/appointments" element={<Appointments />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 403 | <Route path="/emergency" element={<Emergency />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 407 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 410 | <Route path="/patients/:id" element={<PatientProfile />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 414 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 417 | <Route path="/doctors" element={<Doctors />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 418 | <Route path="/doctors/:id/schedules" element={<DoctorSchedules />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 422 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 425 | <Route path="/patient-queue" element={<DoctorPatientQueue />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 426 | <Route path="/patient-queue/:appointmentId" element={<DoctorConsultation />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 430 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 433 | <Route path="/nursing" element={<NursingOperations />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 437 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 440 | <Route path="/pharmacy" element={<PharmacyManagement />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 444 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 447 | <Route path="/billing" element={<Billing/>} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 451 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 454 | <Route path="/procurement" element={<Procurement/>} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 458 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 461 | <Route path="/laboratory" element={<LaboratoryManagement />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 466 | <Route element={
+E:\hospital-management-system\frontend\src\App.tsx | Line 469 | <Route path="/doctors" element={<ModuleWorkspace moduleKey="doctors" />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 470 | <Route path="/departments" element={<ModuleWorkspace moduleKey="departments" />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 471 | <Route path="/admissions" element={<AdmissionsBeds />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 472 | <Route path="/surgeries" element={<SurgeryTheatre />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 473 | <Route path="/transfers" element={<ModuleWorkspace moduleKey="transfers" />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 474 | <Route path="/insurance" element={<ModuleWorkspace moduleKey="insurance" />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 475 | <Route path="/employees" element={<ModuleWorkspace moduleKey="employees" />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 476 | <Route path="/administration" element={<Administration />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 477 | <Route path="/notifications" element={<Notifications />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 478 | <Route path="/medical-records" element={<MedicalRecords />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 479 | <Route path="/discharges" element={<Discharges />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 485 | <Route path="/unauthorized" element={<Unauthorized />} />
+E:\hospital-management-system\frontend\src\App.tsx | Line 487 | <Route
+E:\hospital-management-system\frontend\src\App.tsx | Line 488 | path="*"
+E:\hospital-management-system\frontend\src\App.tsx | Line 489 | element={<Navigate to={home} replace />}
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 127 | const response = await api.get(config.endpoint!)
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 167 | api.get('/departments')
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 252 | const response = await api.post('/admin/staff', payload)
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 35 | api.get('/inpatient/dashboard'), api.get('/inpatient/admissions'),
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 36 | api.get('/inpatient/wards'), api.get('/inpatient/rooms'),
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 37 | api.get('/inpatient/beds'), api.get('/patients'), api.get('/departments'),
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 64 | if (modal === 'Wards') await api.post('/inpatient/wards', { name: draft.name, description: draft.description || undefined, departmentId: draft.departmentId ? Number(draft.departmentId) : undefined })
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 65 | if (modal === 'Rooms') await api.post('/inpatient/rooms', { wardId: Number(draft.wardId), roomNumber: draft.roomNumber })
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 66 | if (modal === 'Beds') await api.post('/inpatient/beds', { roomId: Number(draft.roomId), bedNumber: draft.bedNumber })
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 67 | if (modal === 'Admissions') await api.post('/inpatient/admissions', { patientId: Number(draft.patientId), bedId: Number(draft.bedId), admissionDate: draft.admissionDate ? new Date(`${draft.admissionDate}T00:00:00`).toISOString() : undefined, reason: draft.reason || undefined })
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 74 | try { await api.patch(`/inpatient/beds/${bed.id}`, { status }); await load() }
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 39 | const results = await Promise.allSettled([api.get('/appointments'), api.get('/patients'), api.get('/doctors')])
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 68 | api.get('/appointments/availability', {
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 109 | if (editing) await api.patch(`/appointments/${editing.id}`, payload)
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 110 | else await api.post('/appointments', { ...payload, patientId: Number(form.patientId), doctorId: Number(form.doctorId) })
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 117 | try { await api.patch(`/appointments/${row.id}/status`, { status: next }); await load() }
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 124 | try { await api.patch(`/appointments/${row.id}/cancel`, { cancellationReason: reason }); await load() }
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 57 | api.get('/billing/invoices', { params: outstandingOnly ? { outstandingOnly:'true' } : {} }),
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 58 | canManage ? api.get('/patients') : Promise.resolve({ data: [] }),
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 63 | const collectionsResponse = await api.get('/billing/collections/daily')
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 91 | api.get(`/billing/invoices/${invoice.id}`),
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 92 | api.get(`/billing/invoices/${invoice.id}/payments`),
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 102 | const response = await api.get(`/billing/charge-preview/${patientId}`)
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 136 | await api.post('/billing/invoices', {
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 162 | await api.post(`/billing/invoices/${selected.id}/payments`, {
+E:\hospital-management-system\frontend\src\pages\Dashboard.tsx | Line 22 | const [p,d,a] = await Promise.allSettled([api.get('/patients'),api.get('/doctors'),api.get('/appointments')])
+E:\hospital-management-system\frontend\src\pages\Discharges.tsx | Line 7 | const load=useCallback(async()=>{B(true);const a=await Promise.allSettled([api.get('/discharges'),api.get('/patients')]);if(a[0].status==='fulfilled')S(arr(a[0].value.data));else E('Unable to load discharge summaries.');if(a[1].status==='fulfilled')P(arr(a[1].value.data));B(false)},[]);useEffect(()=>{void load()},[load])
+E:\hospital-management-system\frontend\src\pages\Discharges.tsx | Line 9 | const submit=async(e:React.FormEvent)=>{e.preventDefault();V(true);E('');try{const body:any={principalDiagnosis:f.principalDiagnosis,secondaryDiagnoses:f.secondaryDiagnoses||undefined,proceduresPerformed:f.proceduresPerformed||undefined,treatmentSummary:f.treatmentSummary,dischargeMedication:f.dischargeMedication||undefined,followUpInstructions:f.followUpInstructions||undefined,conditionAtDischarge:f.conditionAtDischarge||undefined};if(!edit)Object.assign(body,{patientId:Number(f.patientId),admissionId:Number(f.admissionId),admissionDate:new Date(f.admissionDate).toISOString(),...(f.dischargeDate?{dischargeDate:new Date(f.dischargeDate).toISOString()}:{})});await (edit?api.patch(`/discharges/${edit.id}`,body):api.post('/discharges',body));O(false);await load()}catch(e:any){E(e?.response?.data?.message??'Unable to save discharge summary.')}finally{V(false)}}
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 111 | const appointmentResponse = await api.get(`/appointments/${appointmentId}`)
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 118 | api.get(`/patients/${patientId}`),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 119 | api.get(`/medical-records/patient/${patientId}/history`),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 148 | await api.post(`/appointments/${appointmentId}/start-consultation`)
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 153 | api.get('/pharmacy/medicines'),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 154 | api.get('/pharmacy/prescriptions', { params: { patientId } }),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 155 | api.get('/doctors'),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 156 | api.get('/appointments/search', { params: { patientId, limit: 100 } }),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 157 | api.get('/laboratory/tests'),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 158 | api.get('/laboratory/requests', { params: { patientId } }),
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 180 | api.get('/appointments/availability', { params: { doctorId: Number(selectedDoctor), date: followUpDate, duration: 30 } })
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 222 | ? await api.patch(`/medical-records/${recordId}`, payload)
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 223 | : await api.post('/medical-records', payload)
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 238 | const response = await api.patch(`/appointments/${appointmentId}/complete-consultation`)
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 256 | await api.post('/pharmacy/prescriptions', {
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 272 | const response = await api.get('/pharmacy/prescriptions', { params: { patientId: patient.id } })
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 287 | const response = await api.post('/laboratory/requests', {
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 298 | const historyResponse = await api.get('/laboratory/requests', { params: { patientId: patient.id } })
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 317 | await api.post('/appointments', {
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 327 | const response = await api.get('/appointments/search', { params: { patientId: patient.id, limit: 100 } })
+E:\hospital-management-system\frontend\src\pages\DoctorDashboard.tsx | Line 98 | const response = await api.get('/appointments/daily', {
+E:\hospital-management-system\frontend\src\pages\DoctorDashboard.tsx | Line 125 | const response = await api.get('/appointments/daily', {
+E:\hospital-management-system\frontend\src\pages\DoctorPatientQueue.tsx | Line 49 | const response = await api.get('/appointments/daily', { params: { date: selectedDate } })
+E:\hospital-management-system\frontend\src\pages\Doctors.tsx | Line 16 | const load=useCallback(async()=>{setLoading(true);setError('');const [d,dep]=await Promise.allSettled([api.get('/doctors'),api.get('/departments/active')]);if(d.status==='fulfilled')setRows(unwrap(d.value.data));else setError('Unable to load doctors. Check your API connection and permissions.');if(dep.status==='fulfilled')setDepartments(unwrap(dep.value.data));setLoading(false)},[])
+E:\hospital-management-system\frontend\src\pages\Doctors.tsx | Line 21 | const submit=async(e:React.FormEvent)=>{e.preventDefault();setSaving(true);setError('');const payload:any={email:form.email,firstName:form.firstName,lastName:form.lastName,phone:form.phone||undefined,registrationNo:form.registrationNo,specialization:form.specialization||undefined,qualification:form.qualification||undefined,yearsExperience:form.yearsExperience?Number(form.yearsExperience):undefined,consultationFee:Number(form.consultationFee),currency:form.currency||'LKR',departmentId:form.departmentId?Number(form.departmentId):undefined,licenseExpiry:form.licenseExpiry||undefined,languages:form.languages.split(',').map(x=>x.trim()).filter(Boolean)};if(!editing)payload.password=form.password;try{if(editing)await api.patch(`/doctors/${editing.id}`,payload);else await api.post('/doctors',payload);setModal(false);await load()}catch(err:any){setError(err?.response?.data?.message?.toString()??'Unable to save doctor. Verify required fields and registration number.')}finally{setSaving(false)}}
+E:\hospital-management-system\frontend\src\pages\Doctors.tsx | Line 22 | const toggle=async(d:Row)=>{try{await api.patch(`/doctors/${d.id}/${d.active===false?'reactivate':'deactivate'}`);await load()}catch(err:any){setError(err?.response?.data?.message?.toString()??'Unable to change doctor status.')}}
+E:\hospital-management-system\frontend\src\pages\DoctorSchedules.tsx | Line 54 | api.get(`/doctors/${doctorId}`),
+E:\hospital-management-system\frontend\src\pages\DoctorSchedules.tsx | Line 55 | api.get(`/doctors/${doctorId}/schedules`)
+E:\hospital-management-system\frontend\src\pages\DoctorSchedules.tsx | Line 119 | await api.patch(
+E:\hospital-management-system\frontend\src\pages\DoctorSchedules.tsx | Line 124 | await api.post(
+E:\hospital-management-system\frontend\src\pages\DoctorSchedules.tsx | Line 146 | await api.delete(
+E:\hospital-management-system\frontend\src\pages\Emergency.tsx | Line 43 | try { const response = await api.get('/emergency/visits'); setVisits(asRows(response.data)) }
+E:\hospital-management-system\frontend\src\pages\HRAttendance.tsx | Line 31 | try{const response=await api.get(resources[key].endpoint);store(key,rows(response.data))}
+E:\hospital-management-system\frontend\src\pages\Insurance.tsx | Line 45 | const response = await api.get(resource.endpoint)
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 51 | api.get('/laboratory/tests', { params: { includeInactive: 'true' } }),
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 52 | api.get('/laboratory/requests'),
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 53 | api.get('/laboratory/statistics/overview'),
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 77 | await api.post('/laboratory/tests', {
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 100 | await api.post('/laboratory/samples/collect', {
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 119 | await api.post('/laboratory/results', {
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 139 | await api.patch(`/laboratory/requests/${request.id}/status`, { status:nextStatus })
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 149 | await api.patch(`/laboratory/results/${labRequestItemId}/verify`, { action })
+E:\hospital-management-system\frontend\src\pages\MedicalRecords.tsx | Line 116 | const response = await api.get('/medical-records', { params })
+E:\hospital-management-system\frontend\src\pages\MedicalRecords.tsx | Line 137 | const response = await api.get(
+E:\hospital-management-system\frontend\src\pages\MedicalRecords.tsx | Line 241 | await api.patch(
+E:\hospital-management-system\frontend\src\pages\MedicalRecords.tsx | Line 247 | await api.post('/medical-records', payload)
+E:\hospital-management-system\frontend\src\pages\MedicalRecords.tsx | Line 267 | const response = await api.get(
+E:\hospital-management-system\frontend\src\pages\MedicalRecords.tsx | Line 282 | const response = await api.get(
+E:\hospital-management-system\frontend\src\pages\ModuleWorkspace.tsx | Line 60 | const response = await api.get(resource.endpoint)
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 118 | const response = await api.get('/notifications', { params })
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 142 | const response = await api.get('/notifications/unread-count')
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 151 | const response = await api.get(
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 182 | await api.patch(`/notifications/${id}/read`)
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 200 | await api.patch('/notifications/read-all')
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 248 | await api.post('/notifications', payload)
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 279 | const response = await api.get(`/notifications/${item.id}`)
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 64 | api.get('/nursing/assignments', role === 'NURSE' ? { params: { active: 'true' } } : undefined),
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 65 | api.get('/inpatient/admissions', { params: { status: 'ADMITTED' } }),
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 68 | requests.push(api.get('/nursing/nurses'))
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 90 | ['observations', api.get(`/nursing/patients/${patientId}/observations`)] ,
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 91 | ['nursing notes', api.get(`/nursing/patients/${patientId}/notes`)],
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 92 | ['medication administrations', api.get(`/nursing/patients/${patientId}/medication-administrations`)],
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 93 | ['prescriptions', api.get('/pharmacy/prescriptions', { params: { patientId } })],
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 94 | ['shift handovers', api.get(`/nursing/patients/${patientId}/handovers`)],
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 128 | await api.post('/nursing/observations', payload)
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 140 | await api.post('/nursing/notes', { patientId:Number(selectedPatientId), assignmentId:selectedAssignment?.id, noteType:noteForm.noteType, content:noteForm.content, recordedAt:noteForm.recordedAt })
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 153 | await api.post('/nursing/medication-administrations', { patientId:Number(selectedPatientId), prescriptionId:Number(medForm.prescriptionId), status:medForm.status, administeredAt:medForm.administeredAt, reason:medForm.reason||undefined, notes:medForm.notes||undefined })
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 168 | await api.post('/nursing/handovers', { patientId:Number(selectedPatientId), admissionId:selectedAdmission?.id, incomingNurseUserId:Number(handoverForm.incomingNurseUserId), patientSummary:handoverForm.patientSummary, currentCondition:handoverForm.currentCondition, pendingMedications:handoverForm.pendingMedications, pendingInvestigations:handoverForm.pendingInvestigations, importantObservations:handoverForm.importantObservations, escalationNotes:handoverForm.escalationNotes })
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 180 | await api.post('/nursing/discharge-clearance', { patientId:Number(selectedPatientId), admissionId:selectedAdmission.id, nursingDischargeNotes:clearanceForm.nursingDischargeNotes, patientEducation:clearanceForm.patientEducation, nursingClearance:clearanceForm.nursingClearance, documentationComplete:clearanceForm.documentationComplete })
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 193 | await api.post('/nursing/assignments', {
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 212 | await api.patch(`/nursing/assignments/${assignmentId}/end`)
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 226 | await api.patch(`/nursing/assignments/${assignment.id}`, { shift: shift.trim() || undefined, notes: notes.trim() || null })
+E:\hospital-management-system\frontend\src\pages\PatientProfile.tsx | Line 59 | const response = await api.get(`/patients/${id}`)
+E:\hospital-management-system\frontend\src\pages\PatientProfile.tsx | Line 75 | if (active === 'history') response = await api.get(`/medical-records/patient/${id}/history`)
+E:\hospital-management-system\frontend\src\pages\PatientProfile.tsx | Line 76 | else if (active === 'nursing') response = await api.get(`/nursing/patients/${id}/notes`)
+E:\hospital-management-system\frontend\src\pages\PatientProfile.tsx | Line 77 | else if (active === 'observations') response = await api.get(`/nursing/patients/${id}/observations`)
+E:\hospital-management-system\frontend\src\pages\PatientProfile.tsx | Line 78 | else response = await api.get(current.endpoint, { params: { patientId: Number(id) } })
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 102 | ? await api.get<Patient[]>('/patients/search', {
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 105 | : await api.get<Patient[]>('/patients')
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 169 | await api.post('/patients', payload)
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 209 | const response = await api.get<Patient>(`/patients/${id}`)
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 240 | await api.delete(`/patients/${deletingPatient.id}`)
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 279 | await api.patch(`/patients/${editingPatient.id}`, payload)
+E:\hospital-management-system\frontend\src\pages\PatientTransfers.tsx | Line 10 | const load=useCallback(async()=>{B(true);E('');const rs=await Promise.allSettled([api.get('/patient-transfers'),api.get('/patients'),api.get('/wards')]);if(rs[0].status==='fulfilled')S(arr(rs[0].value.data));else E('Unable to load transfers.');if(rs[1].status==='fulfilled')P(arr(rs[1].value.data));if(rs[2].status==='fulfilled')W(arr(rs[2].value.data));B(false)},[])
+E:\hospital-management-system\frontend\src\pages\PatientTransfers.tsx | Line 13 | const action=async(id:number,a:string,notes?:string)=>{try{await api.patch(`/patient-transfers/${id}/${a}`,a==='reject'?{notes}:{});await load()}catch(e:any){E(e?.response?.data?.message??'Unable to update transfer.')}}
+E:\hospital-management-system\frontend\src\pages\PatientTransfers.tsx | Line 14 | const submit=async(e:React.FormEvent)=>{e.preventDefault();V(true);E('');const body={patientId:Number(f.patientId),...(f.admissionId?{admissionId:Number(f.admissionId)}:{}),...(f.fromWardId?{fromWardId:Number(f.fromWardId)}:{}),toWardId:Number(f.toWardId),...(f.fromBedId?{fromBedId:Number(f.fromBedId)}:{}),...(f.toBedId?{toBedId:Number(f.toBedId)}:{}),reason:f.reason,notes:f.notes||undefined};try{await api.post('/patient-transfers',body);O(false);F({patientId:'',admissionId:'',fromWardId:'',toWardId:'',fromBedId:'',toBedId:'',reason:'',notes:''});await load()}catch(e:any){E(e?.response?.data?.message??'Unable to create transfer.')}finally{V(false)}}
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 26 | api.get('/pharmacy/medicines?includeInactive=true'), api.get('/pharmacy/categories'),
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 27 | api.get('/pharmacy/stock/overview'), api.get('/pharmacy/stock/transactions'),
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 46 | if (f.kind === 'medicine') await api.post('/pharmacy/medicines', { code:f.code, name:f.name, genericName:f.genericName || undefined, manufacturer:f.manufacturer || undefined, unit:f.unit, sellingPrice:Number(f.sellingPrice), categoryId:f.categoryId ? Number(f.categoryId) : undefined })
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 47 | if (f.kind === 'category') await api.post('/pharmacy/categories', { name:f.name, description:f.description || undefined })
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 48 | if (f.kind === 'batch') await api.post('/pharmacy/batches', { medicineId:Number(f.medicineId), batchNumber:f.batchNumber, quantity:Number(f.quantity), costPrice:Number(f.costPrice), expiryDate:f.expiryDate || undefined, supplierId:f.supplierId ? Number(f.supplierId) : undefined })
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 49 | if (f.kind === 'adjust') await api.post('/pharmacy/stock/adjustments', { medicineId:Number(f.medicineId), quantity:Number(f.quantity), type:f.type, batchId:f.batchId ? Number(f.batchId) : undefined, notes:f.notes })
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 66 | canManage ? api.get('/pharmacy/dashboard') : Promise.resolve({ data: null }),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 67 | api.get('/pharmacy/prescriptions'),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 68 | api.get('/pharmacy/medicines'),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 69 | api.get('/pharmacy/stock/overview'),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 70 | api.get('/pharmacy/stock/transactions'),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 71 | api.get('/pharmacy/categories'),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 82 | const unlinkedResponse = await api.get('/pharmacy/prescriptions/unlinked-items')
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 103 | const response = await api.get('/pharmacy/prescriptions')
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 112 | await api.patch(`/pharmacy/prescriptions/${selected.id}/verify`, { action, reason: verifyReason || undefined })
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 133 | const response = await api.post(`/pharmacy/prescriptions/${selected.id}/dispense`, items?.length ? { items } : {})
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 151 | await api.post('/pharmacy/medicines', {
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 175 | await api.post('/pharmacy/batches', {
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 202 | await api.post('/pharmacy/stock/adjustments', {
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 221 | api.get('/pharmacy/reports/medicine-usage'),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 222 | api.get('/pharmacy/reports/dispensing/daily', { params: { date:today } }),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 351 | await api.patch(`/pharmacy/prescription-items/${item.id}/correct-medicine`,{medicineId:Number(select.value)})
+E:\hospital-management-system\frontend\src\pages\Procurement.tsx | Line 10 | const load=useCallback(async()=>{L(true);E('');const r=await Promise.allSettled([api.get('/pharmacy-procurement/suppliers'),api.get('/pharmacy-procurement/purchase-orders'),api.get('/pharmacy/medicines')]);if(r[0].status==='fulfilled')S(rows(r[0].value.data));else E(msg(r[0].reason));if(r[1].status==='fulfilled')O(rows(r[1].value.data));if(r[2].status==='fulfilled')M(rows(r[2].value.data));L(false)},[])
+E:\hospital-management-system\frontend\src\pages\Procurement.tsx | Line 14 | const submit=async(e:React.FormEvent)=>{e.preventDefault();V(true);E('');try{if(modal==='supplier')await api.post('/pharmacy-procurement/suppliers',{name:f.name,code:f.code||undefined,contactPerson:f.contactPerson||undefined,email:f.email||undefined,phone:f.phone||undefined,address:f.address||undefined});if(modal==='order')await api.post('/pharmacy-procurement/purchase-orders',{supplierId:Number(f.supplierId),expectedAt:f.expectedAt||undefined,notes:f.notes||undefined,items:[{medicineId:Number(f.medicineId),quantityOrdered:Number(f.quantityOrdered),unitCost:Number(f.unitCost),description:f.description||undefined}]});if(modal==='receive')await api.post(`/pharmacy-procurement/purchase-orders/${f.orderId}/receive`,{items:[{itemId:Number(f.itemId),quantityReceived:Number(f.quantityReceived),batchNumber:f.batchNumber,expiryDate:f.expiryDate||undefined}],notes:f.notes||undefined});D('');await load()}catch(e:any){E(msg(e))}finally{V(false)}}
+E:\hospital-management-system\frontend\src\pages\Procurement.tsx | Line 15 | const act=async(id:number,action:'submit'|'cancel')=>{try{await api.patch(`/pharmacy-procurement/purchase-orders/${id}/${action}`);await load()}catch(e:any){E(msg(e))}}
+E:\hospital-management-system\frontend\src\pages\ReceptionDashboard.tsx | Line 49 | api.get('/patients'),
+E:\hospital-management-system\frontend\src\pages\ReceptionDashboard.tsx | Line 50 | api.get('/appointments'),
+E:\hospital-management-system\frontend\src\App.tsx | Line 78 | const response = await api.post<LoginResponse>(
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 22 | { label: 'Administration', path: '/administration', icon: Settings }, { label: 'Notifications', path: '/notifications', icon: Bell },
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 27 | const receptionistPaths = [
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 48 | const role = user?.role?.trim().toUpperCase()
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 54 | if (role === 'ADMIN') return true
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 56 | if (role === 'RECEPTIONIST') {
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 57 | return receptionistPaths.includes(item.path)
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 60 | if (role === 'DOCTOR') {
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 64 | if (role === 'NURSE') {
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 68 | if (role === 'PHARMACIST') {
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 72 | if (role === 'ACCOUNTANT') {
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 76 | if (['LAB_TECHNICIAN','LAB_MANAGER','PATHOLOGIST'].includes(role ?? '')) {
+E:\hospital-management-system\frontend\src\components\layout\MainLayout.tsx | Line 187 | <div className="mc-topbar-actions"><label className="mc-global-search"><Search size={17}/><input placeholder="Search patients, records..." aria-label="Search"/></label><button className="mc-icon-button mc-notification" aria-label="Notifications"><Bell size={19}/><i/></button><div className="mc-user-chip"><div className="mc-avatar">{user?.firstName?.[0] ?? 'M'}{user?.lastName?.[0] ?? 'C'}</div><div className="mc-user-copy"><strong>{user?.firstName} {user?.lastName}</strong><span>{user?.role?.replaceAll('_',' ')}</span></div><ChevronDown size={15}/></div><button className="mc-icon-button mc-logout" onClick={logout} title="Sign out" aria-label="Sign out"><LogOut size={18}/></button></div>
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 5 | interface ProtectedRouteProps {
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 6 | allowedRoles?: string[]
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 9 | export default function ProtectedRoute({
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 10 | allowedRoles,
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 11 | }: ProtectedRouteProps) {
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 19 | allowedRoles &&
+E:\hospital-management-system\frontend\src\components\ProtectedRoute.tsx | Line 20 | (!user || !allowedRoles.includes(user.role.trim().toUpperCase()))
+E:\hospital-management-system\frontend\src\context\AuthContext.tsx | Line 14 | role: string
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 11 | type Section = 'overview' | 'users' | 'roles' | 'permissions' | 'settings' | 'hospital' | 'audit'
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 19 | role: string
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 36 | role: 'RECEPTIONIST',
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 47 | const roles = [
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 48 | 'ADMIN',
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 51 | 'RECEPTIONIST',
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 67 | { key: 'overview', label: 'Overview', endpoint: '/admin/dashboard', icon: LayoutDashboard },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 68 | { key: 'users', label: 'Users', endpoint: '/admin/users', icon: Users },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 69 | { key: 'roles', label: 'Roles', endpoint: '/admin/roles', icon: ShieldCheck },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 70 | { key: 'permissions', label: 'Permissions', endpoint: '/admin/permissions', icon: KeyRound },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 71 | { key: 'settings', label: 'System Settings', endpoint: '/admin/settings', icon: Settings },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 72 | { key: 'hospital', label: 'Hospital Profile', endpoint: '/admin/hospital-profile', icon: Building2 },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 73 | { key: 'audit', label: 'Audit Logs', endpoint: '/admin/audit-logs', icon: ClipboardList },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 102 | export default function Administration() {
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 151 | `Unable to load ${config.label}. Check your ADMIN account.`,
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 188 | 'role', 'status', 'createdAt',
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 212 | if (form.role === 'DOCTOR' && !form.registrationNo.trim()) {
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 218 | form.role !== 'DOCTOR' &&
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 219 | form.role !== 'ADMIN' &&
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 232 | role: form.role,
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 238 | if (form.role === 'DOCTOR') {
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 243 | } else if (form.role !== 'ADMIN') {
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 252 | const response = await api.post('/admin/staff', payload)
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 317 | Administration
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 320 | Manage users, roles, permissions and hospital settings.
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 343 | { label: 'Roles', icon: ShieldCheck, key: 'roles' as Section },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 344 | { label: 'Permissions', icon: KeyRound, key: 'permissions' as Section },
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 423 | role="alert"
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 540 | <label className={labelClass}>Staff Role</label>
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 544 | value={form.role}
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 545 | onChange={event => updateForm('role', event.target.value)}
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 547 | {roles.map(role => (
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 548 | <option key={role} value={role}>
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 549 | {role.replaceAll('_', ' ')}
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 557 | {form.role !== 'ADMIN' && (
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 578 | {form.role === 'DOCTOR' ? (
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 591 | ) : form.role !== 'ADMIN' ? (
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 656 | Administration endpoints are restricted to users with the ADMIN role.
+E:\hospital-management-system\frontend\src\pages\Administration.tsx | Line 657 | Staff registration is administrator-only.
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 49 | if (failed.length) setError(`Unable to load: ${failed.join(', ')}. Check your access permissions and backend connection.`)
+E:\hospital-management-system\frontend\src\pages\AdmissionsBeds.tsx | Line 98 | {error && <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle size={18} className="mt-0.5 shrink-0"/><span>{error}</span></div>}
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 17 | const role = String(user?.role ?? '').trim().toUpperCase()
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 18 | const canManage = ['ADMIN', 'ADMINISTRATOR', 'RECEPTIONIST'].includes(role)
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 19 | const canView = ['ADMIN', 'ADMINISTRATOR', 'RECEPTIONIST', 'DOCTOR'].includes(role)
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 38 | if (!canView) { setRows([]); setLoading(false); setError('Your staff role does not have permission to view appointments.'); return }
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 90 | const openCreate = () => { if (!canManage) return; setEditing(null); setForm(blank); setAvailabilityDate(todayLocal()); setAvailableSlots([]); setSlotsError(''); setModal(true) }
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 92 | if (!canManage) return
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 101 | event.preventDefault(); if (!canManage) return; if (!form.scheduledAt) { setSlotsError('Please select an available appointment time.'); return }; setSaving(true); setError('')
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 116 | if (!canManage) return
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 121 | if (!canManage) return
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 129 | <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-widest text-teal-700">CLINICAL OPERATIONS</p><h2 className="mt-1 text-2xl font-bold text-slate-900">Appointments</h2><p className="mt-1 text-sm text-slate-500">Schedule and manage patient appointments.</p></div>{canManage && <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-800"><Plus size={17}/> New appointment</button>}</div>
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 130 | {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 133 | <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[850px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500"><tr>{['Appointment','Patient','Doctor','Date & time','Type','Status','Actions'].map(x=><th key={x} className="px-3 py-3 font-semibold">{x}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{loading ? <tr><td colSpan={7} className="p-8 text-center text-slate-500">Loading appointments…</td></tr> : visible.length===0 ? <tr><td colSpan={7} className="p-8 text-center text-slate-500">No appointments found.</td></tr> : visible.map(row=><tr key={row.id} className="hover:bg-slate-50/70"><td className="px-3 py-3 font-semibold text-slate-800">{row.appointmentNo ?? `APT-${row.id}`}</td><td className="px-3 py-3">{personName(row.patient)}</td><td className="px-3 py-3">{personName(row.doctor?.user ?? row.doctor)}</td><td className="px-3 py-3">{localDate(row.scheduledAt)}</td><td className="px-3 py-3">{row.appointmentType?.replace('_',' ') ?? '—'}</td><td className="px-3 py-3"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{row.status ?? '—'}</span></td><td className="px-3 py-3"><div className="flex items-center gap-1">{canManage && <><button title="Edit" onClick={()=>openEdit(row)} className="rounded-md p-2 text-slate-500 hover:bg-teal-50 hover:text-teal-700"><Pencil size={15}/></button>{!['COMPLETED','CANCELLED'].includes(row.status) && <><button title="Confirm" onClick={()=>void changeStatus(row,'CONFIRMED')} className="rounded-md p-2 text-slate-500 hover:bg-green-50 hover:text-green-700"><CheckCircle2 size={15}/></button><button title="Cancel" onClick={()=>void cancel(row)} className="rounded-md p-2 text-slate-500 hover:bg-red-50 hover:text-red-700"><Ban size={15}/></button></>}</>}</div></td></tr>)}</tbody></table></div>
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 136 | {modal && canManage && <div className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-slate-950/50 p-4"><div className="my-6 w-full max-w-2xl rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-slate-100 p-5"><div><h3 className="font-bold text-slate-900">{editing?'Edit appointment':'Create appointment'}</h3><p className="text-xs text-slate-500">Fields are submitted to the hospital appointment API.</p></div><button onClick={()=>setModal(false)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><X size={19}/></button></div><form onSubmit={submit} className="grid gap-4 p-5 sm:grid-cols-2">
+E:\hospital-management-system\frontend\src\pages\Appointments.tsx | Line 148 | {slotsError && <span role="alert" className="mt-1 block text-xs text-red-600">{slotsError}</span>}
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 31 | const role = user?.role?.trim().toUpperCase()
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 32 | const canManage = ['ADMIN','RECEPTIONIST','ACCOUNTANT'].includes(role ?? '')
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 33 | const canCreate = ['ADMIN','RECEPTIONIST','ACCOUNTANT'].includes(role ?? '')
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 34 | const canPay = ['ADMIN','ACCOUNTANT'].includes(role ?? '')
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 58 | canManage ? api.get('/patients') : Promise.resolve({ data: [] }),
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 70 | }, [canManage, outstandingOnly])
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 178 | <section className="mc-welcome-row"><div><p className="mc-eyebrow">FINANCE WORKSPACE</p><h2>Billing & Payments</h2><p>Create invoices, record payments and track outstanding balances.</p></div><div className="flex gap-2">{canCreate&&<button type="button" className="consultation-save" onClick={()=>setInvoiceModal(true)}><Plus size={16}/> Create invoice</button>}<button type="button" className="mc-secondary-button" onClick={()=>void load()} disabled={loading}><RefreshCw size={15} className={loading?'mc-spin':''}/> Refresh</button></div></section>
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 179 | {error&&<div role="alert" className="doctor-error">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\Billing.tsx | Line 180 | {success&&<div role="status" className="consultation-success">{success}</div>}
+E:\hospital-management-system\frontend\src\pages\Discharges.tsx | Line 11 | return <main className="space-y-5"><header className="flex flex-wrap justify-between gap-3"><div><p className="text-xs font-bold tracking-widest text-teal-700">INPATIENT OPERATIONS</p><h1 className="text-2xl font-bold text-slate-900">Discharge Management</h1><p className="text-sm text-slate-500">Prepare and maintain clinical discharge summaries.</p></div><button onClick={()=>{D(null);F({patientId:'',admissionId:'',admissionDate:'',dischargeDate:'',principalDiagnosis:'',secondaryDiagnoses:'',proceduresPerformed:'',treatmentSummary:'',dischargeMedication:'',followUpInstructions:'',conditionAtDischarge:''});O(true)}} className="flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white"><Plus size={16}/> New summary</button></header>{err&&<p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}<section className="rounded-xl border bg-white p-4"><div className="flex gap-3"><label className="flex flex-1 items-center gap-2 rounded-lg border px-3"><Search size={16}/><input className="w-full py-2 text-sm outline-none" placeholder="Search patient or diagnosis" value={q} onChange={e=>Q(e.target.value)}/></label><button onClick={()=>void load()} className="rounded-lg border p-2"><RefreshCw size={16}/></button></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr>{['Patient','Admission','Discharge date','Principal diagnosis','Condition','Actions'].map(x=><th className="p-3">{x}</th>)}</tr></thead><tbody className="divide-y">{busy?<tr><td colSpan={6} className="p-8 text-center">Loading…</td></tr>:list.length===0?<tr><td colSpan={6} className="p-8 text-center text-slate-500">No discharge summaries.</td></tr>:list.map(r=><tr><td className="p-3 font-medium">{pn(r.patient)}</td><td className="p-3">#{r.admissionId}</td><td className="p-3">{r.dischargeDate?new Date(r.dischargeDate).toLocaleDateString():'—'}</td><td className="p-3">{r.principalDiagnosis}</td><td className="p-3">{r.conditionAtDischarge??'—'}</td><td className="p-3"><button onClick={()=>openEdit(r)} className="rounded p-2 text-teal-700"><Pencil size={16}/></button></td></tr>)}</tbody></table></div></section>
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 360 | {error && <div role="alert" className="doctor-error">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\DoctorConsultation.tsx | Line 361 | {success && <div role="status" className="consultation-success">{success}</div>}
+E:\hospital-management-system\frontend\src\pages\DoctorDashboard.tsx | Line 209 | <div role="alert" className="doctor-error">
+E:\hospital-management-system\frontend\src\pages\DoctorPatientQueue.tsx | Line 88 | {error && <div role="alert" className="doctor-error">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\Doctors.tsx | Line 16 | const load=useCallback(async()=>{setLoading(true);setError('');const [d,dep]=await Promise.allSettled([api.get('/doctors'),api.get('/departments/active')]);if(d.status==='fulfilled')setRows(unwrap(d.value.data));else setError('Unable to load doctors. Check your API connection and permissions.');if(dep.status==='fulfilled')setDepartments(unwrap(dep.value.data));setLoading(false)},[])
+E:\hospital-management-system\frontend\src\pages\Doctors.tsx | Line 25 | {error&&<div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\HRAttendance.tsx | Line 32 | catch(e:any){setError(e?.response?.data?.message?.toString()??`Unable to load ${resources[key].title}. Verify the API route and access permissions.`);store(key,[])}
+E:\hospital-management-system\frontend\src\pages\HRAttendance.tsx | Line 47 | {error&&<div role="alert" className="mb-3 flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"><AlertCircle size={17}/>{error}</div>}
+E:\hospital-management-system\frontend\src\pages\Insurance.tsx | Line 92 | {error && <div role="alert" className="mb-3 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800"><AlertCircle size={17} className="mt-0.5 shrink-0"/><span>{error}</span></div>}
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 29 | const role = user?.role?.trim().toUpperCase()
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 30 | const canManage = ['ADMIN', 'LAB_TECHNICIAN', 'LAB_MANAGER', 'PATHOLOGIST'].includes(role ?? '')
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 31 | const canVerify = ['ADMIN', 'LAB_MANAGER', 'PATHOLOGIST'].includes(role ?? '')
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 169 | {error && <div role="alert" className="doctor-error">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 170 | {success && <div role="status" className="consultation-success">{success}</div>}
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 185 | {canManage&&<form className="mc-panel nursing-form" onSubmit={saveTest}><div className="consultation-section-heading"><FlaskConical size={18}/><div><h3>Add Laboratory Test</h3><p>Create test catalogue entries</p></div></div><div className="nursing-fields">
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 203 | {loading?<tr><td colSpan={7} className="doctor-empty">Loading requests...</td></tr>:filteredRequests.length===0?<tr><td colSpan={7} className="doctor-empty">No laboratory requests found.</td></tr>:filteredRequests.map(request=><tr key={request.id}><td className="doctor-appointment-no">{request.requestNumber??`LAB-${request.id}`}</td><td>{request.patient?.firstName} {request.patient?.lastName}</td><td>Dr. {request.doctor?.user?.firstName??''} {request.doctor?.user?.lastName??''}</td><td>{request.items?.length??0} tests</td><td>{request.sampleIdentifier??'—'}</td><td><span className="doctor-status confirmed">{request.status?.replace('_',' ')}</span></td><td><button type="button" className="doctor-view-button" onClick={()=>setSelected(request)}>View</button>{canManage&&request.status==='REQUESTED'&&<button type="button" className="doctor-view-button ml-2" onClick={()=>void changeStatus(request,'SAMPLE_PENDING')}>Sample pending</button>}{canManage&&request.status==='SAMPLE_COLLECTED'&&<button type="button" className="doctor-view-button ml-2" onClick={()=>void changeStatus(request,'RECEIVED')}>Receive</button>}{canManage&&request.status==='RECEIVED'&&<button type="button" className="doctor-view-button ml-2" onClick={()=>void changeStatus(request,'PROCESSING')}>Process</button>}</td></tr>)}
+E:\hospital-management-system\frontend\src\pages\LaboratoryManagement.tsx | Line 222 | </div><button type="submit" className="consultation-save" disabled={saving||!canManage}>Save result</button></form>
+E:\hospital-management-system\frontend\src\pages\ModuleWorkspace.tsx | Line 24 | administration: { title: 'Administration', description: 'Users, roles, permissions, system settings and audit history.', resources: [{ label: 'Users', endpoint: '/administration/users' }, { label: 'Roles', endpoint: '/administration/roles' }, { label: 'Permissions', endpoint: '/administration/permissions' }, { label: 'System settings', endpoint: '/administration/settings' }, { label: 'Audit logs', endpoint: '/administration/audit-logs' }] },
+E:\hospital-management-system\frontend\src\pages\Notifications.tsx | Line 156 | // Statistics are restricted to ADMIN and HR_MANAGER.
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 55 | const [medForm, setMedForm] = useState({ prescriptionId:'', status:'ADMINISTERED', administeredAt:new Date().toISOString().slice(0,16), reason:'', notes:'' })
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 62 | const role = user?.role?.trim().toUpperCase()
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 64 | api.get('/nursing/assignments', role === 'NURSE' ? { params: { active: 'true' } } : undefined),
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 67 | if (role === 'ADMIN' || role === 'HR_MANAGER') {
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 78 | }, [user?.role])
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 92 | ['medication administrations', api.get(`/nursing/patients/${patientId}/medication-administrations`)],
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 104 | if (label === 'medication administrations') setMedications(data)
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 150 | if (medForm.status !== 'ADMINISTERED' && !medForm.reason.trim()) { setError('A reason is required for missed or withheld medication.'); return }
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 153 | await api.post('/nursing/medication-administrations', { patientId:Number(selectedPatientId), prescriptionId:Number(medForm.prescriptionId), status:medForm.status, administeredAt:medForm.administeredAt, reason:medForm.reason||undefined, notes:medForm.notes||undefined })
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 154 | setSuccess('Medication administration record saved.')
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 249 | const role = user?.role?.trim().toUpperCase()
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 252 | ...((role === 'ADMIN' || role === 'HR_MANAGER') ? [{id:'assignments' as Tab,label:'Assign Patients',icon:UserRound}] : []),
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 265 | {error && <div role="alert" className="doctor-error">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 266 | {success && <div role="status" className="consultation-success">{success}</div>}
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 280 | <article><span><Pill size={20}/></span><div><strong>{medications.filter(item=>item.status !== 'ADMINISTERED').length}</strong><p>Missed / withheld records</p></div></article>
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 289 | {tab === 'assignments' && (role === 'ADMIN' || role === 'HR_MANAGER') && (
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 356 | <div className="nursing-grid"><form className="mc-panel nursing-form" onSubmit={saveMedication}><div className="consultation-section-heading"><Pill size={18}/><div><h3>Medication Administration</h3><p>Record dose status without changing inventory</p></div></div><div className="nursing-fields"><label>Active prescription<select value={medForm.prescriptionId} onChange={e=>setMedForm({...medForm,prescriptionId:e.target.value})}><option value="">Select prescription</option>{prescriptions.map(prescription=><option key={prescription.id} value={prescription.id}>Prescription #{prescription.id} · {prescription.items?.map((item:Row)=>item.medicineName).join(', ')}</option>)}</select></label><label>Status<select value={medForm.status} onChange={e=>setMedForm({...medForm,status:e.target.value})}><option value="ADMINISTERED">Administered</option><option value="MISSED">Missed</option><option value="WITHHELD">Withheld</option></select></label><label className="full">Administration date & time<input required type="datetime-local" value={medForm.administeredAt} onChange={e=>setMedForm({...medForm,administeredAt:e.target.value})}/></label>{medForm.status !== 'ADMINISTERED'&&<label className="full">Reason *<textarea required rows={3} value={medForm.reason} onChange={e=>setMedForm({...medForm,reason:e.target.value})}/></label>}<label className="full">Notes<textarea rows={3} value={medForm.notes} onChange={e=>setMedForm({...medForm,notes:e.target.value})}/></label></div><button type="submit" className="consultation-save" disabled={saving||!selectedPatientId}>Save administration record</button></form><section className="mc-panel"><div className="consultation-section-heading"><History size={18}/><div><h3>Administration History</h3><p>Administered, missed and withheld doses</p></div></div><div className="nursing-history">{medications.map(item=><article key={item.id}><strong>{item.status} · {dateText(item.administeredAt)}</strong><p>{item.prescription?.items?.map((med:Row)=>`${med.medicineName} — ${med.dosage}, ${med.frequency}`).join('; ')||'Prescription medication'}</p>{item.reason&&<small>Reason: {item.reason}</small>}</article>)}{medications.length===0&&<p className="consultation-empty">No medication administration records found.</p>}</div></section></div>
+E:\hospital-management-system\frontend\src\pages\NursingOperations.tsx | Line 360 | <div className="nursing-grid"><section className="mc-panel"><div className="consultation-section-heading"><HeartPulse size={18}/><div><h3>Current Patient Observations</h3><p>Latest vital sign record</p></div></div>{latestObservation?<div className="nursing-monitoring"><div><span>Blood pressure</span><strong>{latestObservation.systolicBP??'—'}/{latestObservation.diastolicBP??'—'}</strong></div><div><span>Heart rate</span><strong>{latestObservation.pulseBpm??'—'} bpm</strong></div><div><span>Temperature</span><strong>{latestObservation.temperatureC??'—'} °C</strong></div><div><span>Respiratory rate</span><strong>{latestObservation.respiratoryRate??'—'} /min</strong></div><div><span>Oxygen saturation</span><strong>{latestObservation.oxygenSaturation??'—'}%</strong></div></div>:<p className="consultation-empty">No observation available.</p>}</section><section className="mc-panel"><div className="consultation-section-heading"><AlertTriangle size={18}/><div><h3>Alerts & Pending Care</h3><p>Escalate observations through handover documentation</p></div></div>{alerts.map(alert=><div className="nursing-alert" key={alert}><AlertTriangle size={16}/>{alert}</div>)}<div className="nursing-task-list"><div><span>Medication records</span><strong>{medications.length}</strong></div><div><span>Missed / withheld</span><strong>{medications.filter(item=>item.status!== 'ADMINISTERED').length}</strong></div><div><span>Nursing notes</span><strong>{notes.length}</strong></div></div></section></div>
+E:\hospital-management-system\frontend\src\pages\PatientProfile.tsx | Line 46 | const backTarget = user?.role?.trim().toUpperCase() === 'DOCTOR' ? '/dashboard' : '/patients'
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 90 | const canManage =
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 91 | user?.role === 'ADMIN' ||
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 92 | user?.role === 'RECEPTIONIST'
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 94 | const canDelete = user?.role === 'ADMIN'
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 314 | {canManage && (
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 514 | {canManage && (
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 998 | <div role="alert" className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm">
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 1029 | role="dialog"
+E:\hospital-management-system\frontend\src\pages\Patients.tsx | Line 1060 | <div role="alert" className="mt-5 bg-red-50 border border-red-200 text-red-700 rounded-xl p-3 text-sm">
+E:\hospital-management-system\frontend\src\pages\PatientTransfers.tsx | Line 16 | {err&&<p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}<section className="rounded-xl border bg-white p-4"><div className="flex flex-wrap gap-3"><label className="flex min-w-52 flex-1 items-center gap-2 rounded-lg border px-3"><Search size={16}/><input className="w-full py-2 text-sm outline-none" placeholder="Search patient or reason" value={q} onChange={e=>Q(e.target.value)}/></label><select className="rounded-lg border px-3 text-sm" value={status} onChange={e=>T(e.target.value)}><option value="">All statuses</option>{['PENDING','APPROVED','IN_PROGRESS','COMPLETED','REJECTED'].map(x=><option>{x}</option>)}</select><button onClick={()=>void load()} className="rounded-lg border p-2"><RefreshCw size={16}/></button></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs text-slate-500"><tr>{['Patient','From ward','To ward','Reason','Requested','Status','Actions'].map(x=><th className="p-3">{x}</th>)}</tr></thead><tbody className="divide-y">{busy?<tr><td colSpan={7} className="p-8 text-center">Loading…</td></tr>:list.length===0?<tr><td colSpan={7} className="p-8 text-center text-slate-500">No transfer requests.</td></tr>:list.map(r=><tr><td className="p-3 font-medium">{patient(r.patient)}</td><td className="p-3">{r.fromWard?.name??'—'}</td><td className="p-3">{r.toWard?.name??'—'}</td><td className="p-3">{r.reason}</td><td className="p-3">{r.createdAt?new Date(r.createdAt).toLocaleDateString():'—'}</td><td className="p-3">{r.status}</td><td className="p-3"><div className="flex gap-1">{r.status==='PENDING'&&<><button title="Approve" onClick={()=>void action(r.id,'approve')} className="rounded p-2 text-green-700"><CheckCircle2 size={16}/></button><button title="Reject" onClick={()=>void action(r.id,'reject',window.prompt('Reason for rejection')??'')} className="rounded p-2 text-red-600"><XCircle size={16}/></button></>}{r.status==='APPROVED'&&<button title="Start" onClick={()=>void action(r.id,'start')} className="rounded p-2 text-teal-700"><Play size={16}/></button>}{r.status==='IN_PROGRESS'&&<button title="Complete" onClick={()=>void action(r.id,'complete')} className="rounded p-2 text-green-700"><Check size={16}/></button>}</div></td></tr>)}</tbody></table></div></section>
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 8 | const errorText = (e: any) => e?.response?.data?.message?.toString() ?? 'The request could not be completed. Check the API and your role permissions.'
+E:\hospital-management-system\frontend\src\pages\Pharmacy.tsx | Line 58 | {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 29 | const role = user?.role?.trim().toUpperCase()
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 30 | const canManage = role === 'ADMIN' || role === 'PHARMACIST'
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 66 | canManage ? api.get('/pharmacy/dashboard') : Promise.resolve({ data: null }),
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 80 | if (role === 'ADMIN') {
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 231 | if (tab === 'reports' && canManage) void loadReports()
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 232 | }, [tab, canManage])
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 255 | {error && <div role="alert" className="doctor-error">{error}</div>}
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 256 | {success && <div role="status" className="consultation-success">{success}</div>}
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 327 | {canManage && (
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 342 | {role === 'ADMIN' && unlinkedItems.length > 0 && (
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 359 | {canManage && (
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 381 | {canManage && (
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 423 | {String(selected.status).toUpperCase() !== 'CANCELLED' && String(selected.status).toUpperCase() !== 'COMPLETED' && canManage && (
+E:\hospital-management-system\frontend\src\pages\PharmacyManagement.tsx | Line 429 | {canManage&&<div className="consultation-actions mt-4">
+E:\hospital-management-system\frontend\src\pages\Procurement.tsx | Line 6 | const msg = (e: any) => e?.response?.data?.message?.toString() ?? 'Request failed. Check API availability and your role permissions.'
+
+
+]633;D;0]633;A]633;P;Cwd=E:\x5chospital-management-systemPS E:\hospital-management-system> ]633;B
+PS>Write-Host "`n========== BACKEND MODULES =========="
+
+Get-ChildItem "$Backend\src" -Directory |
+Select-Object Name
+
+Write-Host "`n========== BACKEND CONTROLLERS =========="
+
+Get-ChildItem "$Backend\src" -Recurse -File -Include *.controller.ts |
+Select-Object FullName
+
+Write-Host "`n========== BACKEND SERVICES =========="
+
+Get-ChildItem "$Backend\src" -Recurse -File -Include *.service.ts |
+Where-Object {
+    $_.FullName -notmatch '\\generated\\'
+} |
+Select-Object FullName
+
+Write-Host "`n========== BACKEND DTOs =========="
+
+Get-ChildItem "$Backend\src" -Recurse -File -Include *.dto.ts |
+Select-Object FullName
+
+Write-Host "`n========== API ENDPOINT DEFINITIONS =========="
+
+Get-ChildItem "$Backend\src" -Recurse -File -Include *.controller.ts |
+Where-Object {
+    $_.FullName -notmatch '\\generated\\'
+} |
+Select-String -Pattern '@(Get|Post|Put|Patch|Delete)\(' |
+ForEach-Object {
+    "$($_.Path) | Line $($_.LineNumber) | $($_.Line.Trim())"
+}
+
+Write-Host "`n========== BACKEND MODULE REGISTRATION =========="
+
+Get-ChildItem "$Backend\src" -Recurse -File -Include *.module.ts |
+Select-Object FullName
+
+========== BACKEND MODULES ==========
+
+
+========== BACKEND CONTROLLERS ==========
+
+========== BACKEND SERVICES ==========
+
+========== BACKEND DTOs ==========
+
+========== API ENDPOINT DEFINITIONS ==========
+Name
+----
+administration
+appointments
+attendance
+auth
+billing
+departments
+discharge
+doctors
+emergency
+employees
+generated
+inpatient
+insurance
+laboratory
+medical-records
+notifications
+nursing
+operation-theatre
+patient-transfers
+patients
+pharmacy
+pharmacy-procurement
+prisma
+surgery
+users
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 39 | @Get('dashboard')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 42 | @Get('settings')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 45 | @Post('settings')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 50 | @Delete('settings/:id')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 55 | @Get('hospital-profile')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 58 | @Patch('hospital-profile')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 63 | @Get('roles')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 66 | @Post('roles')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 71 | @Patch('roles/:id')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 76 | @Delete('roles/:id')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 81 | @Get('permissions')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 84 | @Post('permissions')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 89 | @Put('roles/:id/permissions')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 94 | @Get('users')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 98 | @Patch('users/:id')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 103 | @Post('staff')
+E:\hospital-management-system\backend\src\administration\administration.controller.ts | Line 113 | @Get('audit-logs')
+E:\hospital-management-system\backend\src\administration\public-settings.controller.ts | Line 9 | @Get('public')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 37 | @Post()
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 44 | @Get()
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 51 | @Get('search')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 80 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 86 | @Get('daily')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 95 | @Get('availability')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 107 | @Get('doctor/:doctorId/statistics')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 117 | @Get('doctor/:doctorId')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 132 | @Post(':id/start-consultation')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 141 | @Patch(':id/complete-consultation')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 150 | @Get(':id')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 157 | @Patch(':id')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 164 | @Patch(':id/status')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 179 | @Patch(':id/cancel')
+E:\hospital-management-system\backend\src\appointments\appointments.controller.ts | Line 186 | @Delete(':id')
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 15 | @Post('check-in') @Roles('ADMIN','HR_MANAGER','EMPLOYEE') checkIn(@Body() dto:CheckInDto){return this.attendance.checkIn(dto);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 16 | @Post('check-out') @Roles('ADMIN','HR_MANAGER','EMPLOYEE') checkOut(@Body() dto:CheckOutDto){return this.attendance.checkOut(dto);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 17 | @Get() @Roles('ADMIN','HR_MANAGER') findAll(@Query('date') date?:string){return this.attendance.findAll(date);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 18 | @Get('daily') @Roles('ADMIN','HR_MANAGER') daily(@Query('date') date:string){return this.attendance.daily(date);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 19 | @Get('monthly') @Roles('ADMIN','HR_MANAGER') monthly(@Query('month') month:string,@Query('employeeId') employeeId?:string){return this.attendance.monthly(month,employeeId?Number(employeeId):undefined);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 20 | @Get('statistics/overview') @Roles('ADMIN','HR_MANAGER') overview(@Query('from') from?:string,@Query('to') to?:string){return this.attendance.overview(from,to);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 21 | @Get('employee/:employeeId') @Roles('ADMIN','HR_MANAGER','EMPLOYEE') history(@Param('employeeId',ParseIntPipe) id:number,@Query('from') from?:string,@Query('to') to?:string){return this.attendance.employeeHistory(id,from,to);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 22 | @Get('employee/:employeeId/statistics') @Roles('ADMIN','HR_MANAGER') employeeStats(@Param('employeeId',ParseIntPipe) id:number,@Query('month') month?:string){return this.attendance.employeeStatistics(id,month);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 23 | @Patch(':id') @Roles('ADMIN','HR_MANAGER') update(@Param('id',ParseIntPipe) id:number,@Body() dto:UpdateAttendanceDto){return this.attendance.update(id,dto);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 24 | @Post('corrections') @Roles('ADMIN','HR_MANAGER','EMPLOYEE') createCorrection(@Body() dto:AttendanceCorrectionDto,@Req() req:any){return this.attendance.createCorrection(req.user.employeeId,dto);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 25 | @Get('corrections/mine') @Roles('ADMIN','HR_MANAGER','EMPLOYEE') myCorrections(@Req() req:any){return this.attendance.myCorrections(req.user.employeeId);}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 26 | @Get('corrections/pending') @Roles('ADMIN','HR_MANAGER') pending(){return this.attendance.pendingCorrections();}
+E:\hospital-management-system\backend\src\attendance\attendance.controller.ts | Line 27 | @Patch('corrections/:id/review') @Roles('ADMIN','HR_MANAGER') review(@Param('id',ParseIntPipe) id:number,@Body() dto:ReviewCorrectionDto,@Req() req:any){return this.attendance.reviewCorrection(id,req.user.userId,dto);}
+E:\hospital-management-system\backend\src\auth\auth.controller.ts | Line 21 | @Post('register')
+E:\hospital-management-system\backend\src\auth\auth.controller.ts | Line 28 | @Post('login')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 27 | @Post('invoices')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 34 | @Get('invoices')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 61 | @Get('invoices/:id')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 68 | @Post('invoices/:id/payments')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 79 | @Get('invoices/:id/payments')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 86 | @Get('charge-preview/:patientId')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 93 | @Get('collections/daily')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 100 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\billing\billing.controller.ts | Line 110 | @Get('statistics/revenue-by-method')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 39 | @Post()
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 45 | @Get()
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 56 | @Get('search')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 102 | @Get('active')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 108 | @Get('inactive')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 114 | @Get('code/:code')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 124 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 130 | @Get('statistics/staffing')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 136 | @Get('statistics/without-head')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 146 | @Post(':id/head')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 158 | @Delete(':id/head')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 170 | @Post(':id/doctors')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 179 | @Delete(':id/doctors/:doctorId')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 195 | @Post(':id/employees/:employeeId')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 207 | @Delete(':id/employees/:employeeId')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 223 | @Get(':id/statistics')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 233 | @Get(':id')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 241 | @Patch(':id')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 250 | @Patch(':id/deactivate')
+E:\hospital-management-system\backend\src\departments\departments.controller.ts | Line 258 | @Patch(':id/reactivate')
+E:\hospital-management-system\backend\src\discharge\discharge.controller.ts | Line 13 | @Post() @Roles('ADMIN', 'DOCTOR') create(@Body() dto: CreateDischargeSummaryDto, @Req() req: any) { return this.service.create(dto, req.user.userId); }
+E:\hospital-management-system\backend\src\discharge\discharge.controller.ts | Line 14 | @Get() @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') findAll(@Query('patientId') patientId?: string, @Query('from') from?: string, @Query('to') to?: string) {
+E:\hospital-management-system\backend\src\discharge\discharge.controller.ts | Line 17 | @Get('admission/:admissionId') @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') byAdmission(@Param('admissionId', ParseIntPipe) admissionId: number) { return this.service.byAdmission(admissionId); }
+E:\hospital-management-system\backend\src\discharge\discharge.controller.ts | Line 18 | @Get(':id') @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') findOne(@Param('id', ParseIntPipe) id: number) { return this.service.findOne(id); }
+E:\hospital-management-system\backend\src\discharge\discharge.controller.ts | Line 19 | @Patch(':id') @Roles('ADMIN', 'DOCTOR') update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateDischargeSummaryDto) { return this.service.update(id, dto); }
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 79 | @Post()
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 85 | @Get()
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 95 | @Get('search')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 143 | @Get('specializations')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 149 | @Get('department/:departmentId')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 160 | @Get(':id')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 171 | @Patch(':id')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 180 | @Patch(':id/deactivate')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 188 | @Patch(':id/reactivate')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 200 | @Post(':id/schedules')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 209 | @Get(':id/schedules')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 220 | @Patch(':id/schedules/:scheduleId')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 234 | @Delete(':id/schedules/:scheduleId')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 250 | @Post(':id/availability')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 259 | @Get(':id/availability')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 276 | @Get(':id/availability/date')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 295 | @Delete(':id/availability/:availabilityId')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 312 | @Post(':id/leaves')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 324 | @Get(':id/leaves')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 335 | @Get('leaves/pending')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 341 | @Get('leaves/:leaveId')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 352 | @Patch('leaves/:leaveId/review')
+E:\hospital-management-system\backend\src\doctors\doctors.controller.ts | Line 366 | @Patch(':id/leaves/:leaveId/cancel')
+E:\hospital-management-system\backend\src\emergency\emergency.controller.ts | Line 14 | @Post('visits')
+E:\hospital-management-system\backend\src\emergency\emergency.controller.ts | Line 20 | @Get('visits')
+E:\hospital-management-system\backend\src\emergency\emergency.controller.ts | Line 33 | @Get('visits/:id')
+E:\hospital-management-system\backend\src\emergency\emergency.controller.ts | Line 37 | @Patch('visits/:id')
+E:\hospital-management-system\backend\src\emergency\emergency.controller.ts | Line 41 | @Patch('visits/:id/status')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 30 | @Post()
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 36 | @Get()
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 43 | @Get('search')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 77 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 83 | @Get('department/:departmentId')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 91 | @Post(':id/department')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 100 | @Delete(':id/department')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 106 | @Post(':id/department-head/:departmentId')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 115 | @Delete(':id/department-head')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 121 | @Get(':id/statistics')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 127 | @Get(':id')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 133 | @Patch(':id')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 142 | @Patch(':id/status')
+E:\hospital-management-system\backend\src\employees\employees.controller.ts | Line 151 | @Delete(':id')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 50 | @Get('dashboard')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 60 | @Post('wards')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 66 | @Get('wards')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 72 | @Get('wards/:id')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 78 | @Patch('wards/:id')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 91 | @Post('rooms')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 97 | @Get('rooms')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 109 | @Post('beds')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 115 | @Get('beds')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 140 | @Patch('beds/:id')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 153 | @Post('admissions')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 159 | @Get('admissions')
+E:\hospital-management-system\backend\src\inpatient\inpatient.controller.ts | Line 186 | @Get('admissions/:id')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 22 | @Post('providers')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 28 | @Get('providers')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 37 | @Get('providers/:id')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 43 | @Patch('providers/:id')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 53 | @Post('policies')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 59 | @Get('policies')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 78 | @Get('policies/:id')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 84 | @Patch('policies/:id')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 94 | @Post('claims')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 100 | @Get('claims')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 118 | @Get('claims/:id')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 124 | @Patch('claims/:id/submit')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 130 | @Patch('claims/:id/review')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 141 | @Patch('claims/:id/payment')
+E:\hospital-management-system\backend\src\insurance\insurance.controller.ts | Line 151 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 24 | @Post('tests')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 31 | @Get('tests')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 38 | @Get('tests/:id')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 45 | @Patch('tests/:id')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 52 | @Post('requests')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 59 | @Get('requests')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 81 | @Get('requests/:id')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 88 | @Patch('requests/:id/status')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 99 | @Post('results')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 106 | @Post('samples/collect')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 113 | @Patch('results/:labRequestItemId/verify')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 124 | @Get('requests/:id/report')
+E:\hospital-management-system\backend\src\laboratory\laboratory.controller.ts | Line 131 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\medical-records\medical-records.controller.ts | Line 19 | @Post()
+E:\hospital-management-system\backend\src\medical-records\medical-records.controller.ts | Line 26 | @Get()
+E:\hospital-management-system\backend\src\medical-records\medical-records.controller.ts | Line 44 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\medical-records\medical-records.controller.ts | Line 51 | @Get('patient/:patientId/history')
+E:\hospital-management-system\backend\src\medical-records\medical-records.controller.ts | Line 58 | @Get(':id')
+E:\hospital-management-system\backend\src\medical-records\medical-records.controller.ts | Line 65 | @Patch(':id')
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 14 | @Post()
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 18 | @Get()
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 24 | @Get('unread-count')
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 28 | @Get('statistics/overview')
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 32 | @Get(':id')
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 38 | @Patch(':id/read')
+E:\hospital-management-system\backend\src\notifications\notifications.controller.ts | Line 44 | @Patch('read-all')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 50 | @Post('assignments')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 57 | @Get('nurses')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 68 | @Get('assignments')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 97 | @Get('assignments/:id')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 109 | @Patch('assignments/:id')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 116 | @Patch('assignments/:id/end')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 121 | @Post('notes')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 130 | @Get('patients/:patientId/notes')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 138 | @Get('notes/:id')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 147 | @Patch('notes/:id')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 155 | @Post('observations')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 164 | @Get('patients/:patientId/observations')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 177 | @Get('observations/:id')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 186 | @Post('medication-administrations')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 193 | @Get('patients/:patientId/medication-administrations')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 200 | @Post('handovers')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 207 | @Get('patients/:patientId/handovers')
+E:\hospital-management-system\backend\src\nursing\nursing.controller.ts | Line 214 | @Post('discharge-clearance')
+E:\hospital-management-system\backend\src\operation-theatre\operation-theatre.controller.ts | Line 13 | @Post() @Roles('ADMIN', 'HR_MANAGER') create(@Body() dto: CreateOperationTheatreDto) { return this.service.create(dto); }
+E:\hospital-management-system\backend\src\operation-theatre\operation-theatre.controller.ts | Line 14 | @Get() @Roles('ADMIN', 'HR_MANAGER', 'DOCTOR', 'NURSE') findAll(@Query('active') active?: string, @Query('status') status?: string) {
+E:\hospital-management-system\backend\src\operation-theatre\operation-theatre.controller.ts | Line 18 | @Get(':id') @Roles('ADMIN', 'HR_MANAGER', 'DOCTOR', 'NURSE') findOne(@Param('id', ParseIntPipe) id: number) { return this.service.findOne(id); }
+E:\hospital-management-system\backend\src\operation-theatre\operation-theatre.controller.ts | Line 19 | @Patch(':id') @Roles('ADMIN', 'HR_MANAGER') update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOperationTheatreDto) { return this.service.update(id, dto); }
+E:\hospital-management-system\backend\src\operation-theatre\operation-theatre.controller.ts | Line 20 | @Patch(':id/deactivate') @Roles('ADMIN', 'HR_MANAGER') deactivate(@Param('id', ParseIntPipe) id: number) { return this.service.deactivate(id); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 12 | @Post() @Roles('ADMIN', 'DOCTOR', 'NURSE') create(@Body() dto: CreatePatientTransferDto, @Req() req: any) { return this.service.create(dto, req.user.userId); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 13 | @Get() @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') findAll(@Query('status') status?: string, @Query('patientId') patientId?: string) { return this.service.findAll(status, patientId ? Number(patientId) : undefined); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 14 | @Get(':id') @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') findOne(@Param('id', ParseIntPipe) id: number) { return this.service.findOne(id); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 15 | @Patch(':id/approve') @Roles('ADMIN', 'HR_MANAGER', 'DOCTOR') approve(@Param('id', ParseIntPipe) id: number, @Req() req: any) { return this.service.approve(id, req.user.userId); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 16 | @Patch(':id/reject') @Roles('ADMIN', 'HR_MANAGER', 'DOCTOR') reject(@Param('id', ParseIntPipe) id: number, @Body() body: { notes?: string }) { return this.service.reject(id, body.notes); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 17 | @Patch(':id/start') @Roles('ADMIN', 'DOCTOR', 'NURSE') start(@Param('id', ParseIntPipe) id: number) { return this.service.start(id); }
+E:\hospital-management-system\backend\src\patient-transfers\patient-transfers.controller.ts | Line 18 | @Patch(':id/complete') @Roles('ADMIN', 'DOCTOR', 'NURSE') complete(@Param('id', ParseIntPipe) id: number) { return this.service.complete(id); }
+E:\hospital-management-system\backend\src\patients\patients.controller.ts | Line 32 | @Post()
+E:\hospital-management-system\backend\src\patients\patients.controller.ts | Line 39 | @Get()
+E:\hospital-management-system\backend\src\patients\patients.controller.ts | Line 46 | @Get('search')
+E:\hospital-management-system\backend\src\patients\patients.controller.ts | Line 53 | @Get(':id')
+E:\hospital-management-system\backend\src\patients\patients.controller.ts | Line 60 | @Patch(':id')
+E:\hospital-management-system\backend\src\patients\patients.controller.ts | Line 70 | @Delete(':id')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 26 | @Post('categories') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 28 | @Get('categories') @Roles('ADMIN','PHARMACIST','DOCTOR','NURSE')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 31 | @Post('medicines') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 33 | @Get('medicines') @Roles('ADMIN','PHARMACIST','DOCTOR','NURSE')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 44 | @Get('medicines/:id') @Roles('ADMIN','PHARMACIST','DOCTOR','NURSE')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 46 | @Patch('medicines/:id') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 49 | @Post('batches') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 51 | @Post('stock/adjustments') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 53 | @Get('stock/overview') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 59 | @Get('stock/transactions') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 68 | @Get('dashboard') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 72 | @Get('reports/dispensing/daily') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 76 | @Get('reports/medicine-usage') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 82 | @Get('reports/stock-movement') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 90 | @Get('prescriptions/unlinked-items') @Roles('ADMIN')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 96 | @Get('prescriptions/:id') @Roles('ADMIN','PHARMACIST','DOCTOR','NURSE')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 101 | @Get('prescriptions') @Roles('ADMIN','PHARMACIST','DOCTOR','NURSE')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 110 | @Post('prescriptions') @Roles('ADMIN','DOCTOR','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 116 | @Patch('prescription-items/:itemId/correct-medicine') @Roles('ADMIN')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 124 | @Patch('prescriptions/:id/verify') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy\pharmacy.controller.ts | Line 130 | @Post('prescriptions/:id/dispense') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 15 | @Post('suppliers') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 17 | @Get('suppliers') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 22 | @Get('suppliers/:id') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 24 | @Patch('suppliers/:id') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 26 | @Post('purchase-orders') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 28 | @Get('purchase-orders') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 30 | @Get('purchase-orders/:id') @Roles('ADMIN','PHARMACIST','ACCOUNTANT')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 32 | @Patch('purchase-orders/:id') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 34 | @Patch('purchase-orders/:id/submit') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 36 | @Patch('purchase-orders/:id/cancel') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\pharmacy-procurement\pharmacy-procurement.controller.ts | Line 38 | @Post('purchase-orders/:id/receive') @Roles('ADMIN','PHARMACIST')
+E:\hospital-management-system\backend\src\surgery\surgery.controller.ts | Line 13 | @Post() @Roles('ADMIN', 'DOCTOR') create(@Body() dto: CreateSurgeryBookingDto) { return this.service.create(dto); }
+E:\hospital-management-system\backend\src\surgery\surgery.controller.ts | Line 14 | @Get() @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') findAll(@Query('patientId') patientId?: string, @Query('doctorId') doctorId?: string,
+E:\hospital-management-system\backend\src\surgery\surgery.controller.ts | Line 19 | @Get(':id') @Roles('ADMIN', 'DOCTOR', 'NURSE', 'HR_MANAGER') findOne(@Param('id', ParseIntPipe) id: number) { return this.service.findOne(id); }
+E:\hospital-management-system\backend\src\surgery\surgery.controller.ts | Line 20 | @Patch(':id') @Roles('ADMIN', 'DOCTOR') update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateSurgeryBookingDto) { return this.service.update(id, dto); }
+E:\hospital-management-system\backend\src\surgery\surgery.controller.ts | Line 21 | @Patch(':id/status') @Roles('ADMIN', 'DOCTOR', 'NURSE') transition(@Param('id', ParseIntPipe) id: number, @Body() body: { status: string; notes?: string; reason?: string }) {
+E:\hospital-management-system\backend\src\users\users.controller.ts | Line 15 | @Get('profile')
+E:\hospital-management-system\backend\src\users\users.controller.ts | Line 22 | @Get('admin-test')
+E:\hospital-management-system\backend\src\app.controller.ts | Line 8 | @Get()
+
+========== BACKEND MODULE REGISTRATION ==========
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]633;D;0]633;A]633;P;Cwd=E:\x5chospital-management-systemPS E:\hospital-management-system> ]633;B
+PS>Write-Host "`n========== PRISMA MODELS =========="
+
+Select-String -Path "$Backend\prisma\schema.prisma" `
+-Pattern '^model\s+\w+'
+
+Write-Host "`n========== PRISMA ENUMS =========="
+
+Select-String -Path "$Backend\prisma\schema.prisma" `
+-Pattern '^enum\s+\w+'
+
+Write-Host "`n========== DATABASE MIGRATIONS =========="
+
+Get-ChildItem "$Backend\prisma\migrations" -Directory |
+Select-Object Name
+
+Write-Host "`n========== DATABASE RELATIONSHIPS =========="
+
+Select-String -Path "$Backend\prisma\schema.prisma" `
+-Pattern '@relation|@@unique|@@index|@unique'
+
+Write-Host "`n========== PERMISSIONS =========="
+
+Get-Content "$Backend\src\auth\permissions.sql"
+
+========== PRISMA MODELS ==========
+
+backend\prisma\schema.prisma:150:model Role
+{
+backend\prisma\schema.prisma:162:model
+LabResultHistory {
+backend\prisma\schema.prisma:182:model
+Permission {
+backend\prisma\schema.prisma:193:model
+RolePermission {
+backend\prisma\schema.prisma:207:model User
+{
+backend\prisma\schema.prisma:251:model
+Department {
+backend\prisma\schema.prisma:271:model
+Patient {
+backend\prisma\schema.prisma:309:model
+Doctor {
+backend\prisma\schema.prisma:357:model
+DoctorSchedule {
+backend\prisma\schema.prisma:381:model
+DoctorAvailability {
+backend\prisma\schema.prisma:403:model
+DoctorLeave {
+backend\prisma\schema.prisma:429:model
+Appointment {
+backend\prisma\schema.prisma:475:model
+MedicalRecord {
+backend\prisma\schema.prisma:512:model
+Prescription {
+backend\prisma\schema.prisma:542:model
+PrescriptionItem {
+backend\prisma\schema.prisma:562:model
+LabTest {
+backend\prisma\schema.prisma:580:model
+LabRequest {
+backend\prisma\schema.prisma:607:model
+LabRequestItem {
+backend\prisma\schema.prisma:623:model
+LabResult {
+backend\prisma\schema.prisma:646:model
+MedicineCategory {
+backend\prisma\schema.prisma:657:model
+Medicine {
+backend\prisma\schema.prisma:679:model
+MedicineBatch {
+backend\prisma\schema.prisma:701:model
+InventoryTransaction {
+backend\prisma\schema.prisma:723:model Ward
+{
+backend\prisma\schema.prisma:740:model Room
+{
+backend\prisma\schema.prisma:755:model Bed {
+backend\prisma\schema.prisma:774:model
+Admission {
+backend\prisma\schema.prisma:798:model
+Employee {
+backend\prisma\schema.prisma:826:model
+Attendance {
+backend\prisma\schema.prisma:873:model
+AttendanceCorrection {
+backend\prisma\schema.prisma:903:model
+LeaveRecord {
+backend\prisma\schema.prisma:926:model
+Invoice {
+backend\prisma\schema.prisma:946:model
+InvoiceItem {
+backend\prisma\schema.prisma:961:model
+Payment {
+backend\prisma\schema.prisma:979:model
+AuditLog {
+backend\prisma\schema.prisma:995:model
+NursingAssignment {
+backend\prisma\schema.prisma:1025:model
+NursingNote {
+backend\prisma\schema.prisma:1051:model
+NursingObservation {
+backend\prisma\schema.prisma:1081:model
+MedicationAdministration {
+backend\prisma\schema.prisma:1108:model
+ShiftHandover {
+backend\prisma\schema.prisma:1136:model
+NursingDischargeClearance {
+backend\prisma\schema.prisma:1159:model
+InsuranceProvider {
+backend\prisma\schema.prisma:1177:model
+PatientInsurance {
+backend\prisma\schema.prisma:1205:model
+InsuranceClaim {
+backend\prisma\schema.prisma:1239:model
+Notification {
+backend\prisma\schema.prisma:1265:model
+SystemSetting {
+backend\prisma\schema.prisma:1277:model
+Supplier {
+backend\prisma\schema.prisma:1297:model
+PurchaseOrder {
+backend\prisma\schema.prisma:1322:model
+PurchaseOrderItem {
+backend\prisma\schema.prisma:1390:model
+EmergencyVisit {
+backend\prisma\schema.prisma:1422:model
+OperationTheatre {
+backend\prisma\schema.prisma:1438:model
+SurgeryBooking {
+backend\prisma\schema.prisma:1472:model
+PatientTransfer {
+backend\prisma\schema.prisma:1514:model
+DischargeSummary {
+
+========== PRISMA ENUMS ==========
+backend\prisma\schema.prisma:10:enum
+UserStatus {
+backend\prisma\schema.prisma:16:enum
+AppointmentStatus {
+backend\prisma\schema.prisma:24:enum Gender
+{
+backend\prisma\schema.prisma:30:enum
+PrescriptionStatus {
+backend\prisma\schema.prisma:37:enum
+PrescriptionVerificationStatus {
+backend\prisma\schema.prisma:43:enum
+LabRequestStatus {
+backend\prisma\schema.prisma:56:enum
+InventoryTransactionType {
+backend\prisma\schema.prisma:64:enum
+AdmissionStatus {
+backend\prisma\schema.prisma:71:enum
+MedicationAdministrationStatus {
+backend\prisma\schema.prisma:77:enum
+BedStatus {
+backend\prisma\schema.prisma:84:enum
+LeaveStatus {
+backend\prisma\schema.prisma:91:enum
+DoctorAvailabilityStatus {
+backend\prisma\schema.prisma:97:enum
+NotificationType {
+backend\prisma\schema.prisma:108:enum
+NotificationChannel {
+backend\prisma\schema.prisma:114:enum
+NotificationStatus {
+backend\prisma\schema.prisma:121:enum
+InsuranceClaimStatus {
+backend\prisma\schema.prisma:132:enum
+InvoiceStatus {
+backend\prisma\schema.prisma:142:enum
+PurchaseOrderStatus {
+backend\prisma\schema.prisma:470:enum
+AppointmentType {
+backend\prisma\schema.prisma:858:enum
+AttendanceStatus {
+backend\prisma\schema.prisma:867:enum
+AttendanceCorrectionStatus {
+backend\prisma\schema.prisma:1345:enum
+EmergencyTriageLevel {
+backend\prisma\schema.prisma:1353:enum
+EmergencyVisitStatus {
+backend\prisma\schema.prisma:1365:enum
+TheatreStatus {
+backend\prisma\schema.prisma:1372:enum
+SurgeryStatus {
+backend\prisma\schema.prisma:1381:enum
+PatientTransferStatus {
+
+========== DATABASE MIGRATIONS ==========
+
+Name : 20261021053000_initial_hms_schema
+
+
+Name : 20261021053418_add_hms_modules
+
+
+Name : 20261113143424_complete_doctor_manage
+       ment
+
+
+Name : 20261114065047_enhance_department_man
+       agement
+
+
+Name : 20261114082812_add_employee_active_st
+       atus
+
+
+Name : 20261114085632_enhance_appointment_ma
+       nagement
+
+
+Name : 20261115035328_complete_attendance_ma
+       nagement
+
+
+Name : 20261115142037_expand_medicore_hospit
+       al_features
+
+
+Name : 20261116104915_add_hospital_operation
+       s
+
+
+Name : 20261118212600_add_consultation_works
+       pace
+
+
+Name : 20261118215700_nursing_care_workflow
+
+
+Name : 20261119100400_pharmacy_verification_
+       dispensing
+
+
+Name : 20261119122000_laboratory_workflow
+
+
+Name : 20261119150700_billing_charge_sources
+
+
+========== DATABASE RELATIONSHIPS ==========
+backend\prisma\schema.prisma:152:  name
+   String  @unique
+backend\prisma\schema.prisma:166:
+labResult   LabResult @relation(fields:
+[labResultId], references: [id], onDelete:
+Cascade)
+backend\prisma\schema.prisma:176:
+changedBy       User     @relation(fields:
+[changedById], references: [id], onDelete:
+Restrict)
+backend\prisma\schema.prisma:179:
+@@index([labResultId, changedAt])
+backend\prisma\schema.prisma:184:  name
+   String  @unique
+backend\prisma\schema.prisma:197:  role
+Role @relation(fields: [roleId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:200:
+permission   Permission @relation(fields:
+[permissionId], references: [id], onDelete:
+Cascade)
+backend\prisma\schema.prisma:204:
+@@unique([roleId, permissionId])
+backend\prisma\schema.prisma:209:  email
+    String     @unique
+backend\prisma\schema.prisma:217:  role
+Role @relation(fields: [roleId],
+references: [id])
+backend\prisma\schema.prisma:223:
+doctorLeaveReviews          DoctorLeave[]
+            @relation("DoctorLeaveReviewer")
+backend\prisma\schema.prisma:224:
+employeeLeaveReviews        LeaveRecord[]
+
+@relation("EmployeeLeaveReviewer")
+backend\prisma\schema.prisma:225:
+attendanceCorrectionReviews
+AttendanceCorrection[]
+@relation("AttendanceCorrectionReviewer")
+backend\prisma\schema.prisma:226:
+verifiedLabResults          LabResult[]
+            @relation("LabResultVerifier")
+backend\prisma\schema.prisma:228:
+dispensedPrescriptions      Prescription[]
+
+@relation("PrescriptionDispenser")
+backend\prisma\schema.prisma:229:
+verifiedPrescriptions       Prescription[]
+
+@relation("PrescriptionVerifier")
+backend\prisma\schema.prisma:230:
+reviewedInsuranceClaims
+InsuranceClaim[]
+@relation("InsuranceClaimReviewer")
+backend\prisma\schema.prisma:231:
+nursingNotes                NursingNote[]
+            @relation("NursingNoteAuthor")
+backend\prisma\schema.prisma:232:
+medicationAdministrations
+MedicationAdministration[]
+@relation("MedicationAdministrationNurse")
+backend\prisma\schema.prisma:233:
+outgoingShiftHandovers      ShiftHandover[]
+
+@relation("ShiftHandoverOutgoing")
+backend\prisma\schema.prisma:234:
+incomingShiftHandovers      ShiftHandover[]
+
+@relation("ShiftHandoverIncoming")
+backend\prisma\schema.prisma:237:
+inventoryTransactions
+InventoryTransaction[]
+@relation("InventoryTransactionActor")
+backend\prisma\schema.prisma:238:
+createdPurchaseOrders       PurchaseOrder[]
+
+@relation("PurchaseOrderCreator")
+backend\prisma\schema.prisma:245:
+createdEmergencyVisits     EmergencyVisit[]
+  @relation("EmergencyVisitCreator")
+backend\prisma\schema.prisma:246:
+requestedTransfers
+PatientTransfer[]
+@relation("TransferRequester")
+backend\prisma\schema.prisma:247:
+approvedTransfers
+PatientTransfer[]
+@relation("TransferApprover")
+backend\prisma\schema.prisma:248:
+preparedDischargeSummaries
+DischargeSummary[]
+@relation("DischargeSummaryAuthor")
+backend\prisma\schema.prisma:253:  code
+   String? @unique
+backend\prisma\schema.prisma:254:  name
+   String  @unique
+backend\prisma\schema.prisma:259:
+headEmployeeId Int?      @unique
+backend\prisma\schema.prisma:260:
+headEmployee   Employee?
+@relation("DepartmentHead", fields:
+[headEmployeeId], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:273:
+patientNumber  String    @unique
+backend\prisma\schema.prisma:311:
+registrationNo String  @unique
+backend\prisma\schema.prisma:329:  userId
+Int  @unique
+backend\prisma\schema.prisma:330:  user
+User @relation(fields: [userId],
+references: [id])
+backend\prisma\schema.prisma:333:
+department   Department? @relation(fields:
+[departmentId], references: [id])
+backend\prisma\schema.prisma:352:
+@@index([departmentId])
+backend\prisma\schema.prisma:353:
+@@index([specialization])
+backend\prisma\schema.prisma:354:
+@@index([active])
+backend\prisma\schema.prisma:373:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:378:
+@@index([doctorId, dayOfWeek])
+backend\prisma\schema.prisma:394:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:399:
+@@unique([doctorId, date])
+backend\prisma\schema.prisma:400:
+@@index([date, status])
+backend\prisma\schema.prisma:414:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:417:
+reviewedBy   User?
+@relation("DoctorLeaveReviewer", fields:
+[reviewedById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:425:
+@@index([doctorId, status])
+backend\prisma\schema.prisma:426:
+@@index([startDate, endDate])
+backend\prisma\schema.prisma:431:
+appointmentNo String @unique
+backend\prisma\schema.prisma:449:  patient
+ Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:452:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id])
+backend\prisma\schema.prisma:455:
+department   Department? @relation(fields:
+[departmentId], references: [id])
+backend\prisma\schema.prisma:462:
+@@index([patientId])
+backend\prisma\schema.prisma:463:
+@@index([doctorId])
+backend\prisma\schema.prisma:464:
+@@index([departmentId])
+backend\prisma\schema.prisma:465:
+@@index([scheduledAt])
+backend\prisma\schema.prisma:466:
+@@index([status])
+backend\prisma\schema.prisma:467:
+@@index([doctorId, scheduledAt])
+backend\prisma\schema.prisma:482:
+appointmentId           Int?         @unique
+backend\prisma\schema.prisma:483:
+appointment             Appointment?
+@relation(fields: [appointmentId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:500:  patient
+ Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:503:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id])
+backend\prisma\schema.prisma:520:
+verifiedBy         User?
+      @relation("PrescriptionVerifier",
+fields: [verifiedById], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:523:  patient
+ Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:526:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id])
+backend\prisma\schema.prisma:529:
+medicalRecord   MedicalRecord?
+@relation(fields: [medicalRecordId],
+references: [id])
+backend\prisma\schema.prisma:533:
+dispensedBy   User?
+@relation("PrescriptionDispenser", fields:
+[dispensedById], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:546:
+prescription   Prescription
+@relation(fields: [prescriptionId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:549:  medicine
+  Medicine? @relation(fields: [medicineId],
+references: [id])
+backend\prisma\schema.prisma:564:  code
+      String  @unique
+backend\prisma\schema.prisma:584:
+requestNumber    String           @unique
+@default("")
+backend\prisma\schema.prisma:593:  patient
+ Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:596:  doctor
+Doctor @relation(fields: [doctorId],
+references: [id])
+backend\prisma\schema.prisma:599:
+medicalRecord   MedicalRecord?
+@relation(fields: [medicalRecordId],
+references: [id])
+backend\prisma\schema.prisma:611:
+labRequest   LabRequest @relation(fields:
+[labRequestId], references: [id], onDelete:
+Cascade)
+backend\prisma\schema.prisma:614:  labTest
+ LabTest @relation(fields: [labTestId],
+references: [id])
+backend\prisma\schema.prisma:620:
+@@unique([labRequestId, labTestId])
+backend\prisma\schema.prisma:634:
+labRequestItemId Int            @unique
+backend\prisma\schema.prisma:635:
+labRequestItem   LabRequestItem
+@relation(fields: [labRequestItemId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:639:
+verifiedBy   User?
+@relation("LabResultVerifier", fields:
+[verifiedById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:648:  name
+   String  @unique
+backend\prisma\schema.prisma:659:  code
+    String  @unique
+backend\prisma\schema.prisma:668:  category
+  MedicineCategory? @relation(fields:
+[categoryId], references: [id])
+backend\prisma\schema.prisma:687:  medicine
+  Medicine @relation(fields: [medicineId],
+references: [id])
+backend\prisma\schema.prisma:690:  supplier
+  Supplier? @relation(fields: [supplierId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:698:
+@@unique([medicineId, batchNumber])
+backend\prisma\schema.prisma:709:  medicine
+  Medicine @relation(fields: [medicineId],
+references: [id])
+backend\prisma\schema.prisma:712:  batch
+MedicineBatch? @relation(fields: [batchId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:715:
+performedBy   User?
+@relation("InventoryTransactionActor",
+fields: [performedById], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:719:
+@@index([medicineId, createdAt])
+backend\prisma\schema.prisma:720:
+@@index([type, createdAt])
+backend\prisma\schema.prisma:725:  name
+   String  @unique
+backend\prisma\schema.prisma:729:
+department   Department? @relation(fields:
+[departmentId], references: [id])
+backend\prisma\schema.prisma:736:
+outgoingTransfers PatientTransfer[]
+@relation("TransferFromWard")
+backend\prisma\schema.prisma:737:
+incomingTransfers PatientTransfer[]
+@relation("TransferToWard")
+backend\prisma\schema.prisma:745:  ward
+Ward @relation(fields: [wardId],
+references: [id])
+backend\prisma\schema.prisma:752:
+@@unique([wardId, roomNumber])
+backend\prisma\schema.prisma:761:  room
+Room @relation(fields: [roomId],
+references: [id])
+backend\prisma\schema.prisma:768:
+outgoingTransfers PatientTransfer[]
+@relation("TransferFromBed")
+backend\prisma\schema.prisma:769:
+incomingTransfers PatientTransfer[]
+@relation("TransferToBed")
+backend\prisma\schema.prisma:771:
+@@unique([roomId, bedNumber])
+backend\prisma\schema.prisma:782:  patient
+ Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:785:  bed
+Bed? @relation(fields: [bedId], references:
+[id])
+backend\prisma\schema.prisma:800:
+employeeNo  String    @unique
+backend\prisma\schema.prisma:805:  userId
+Int  @unique
+backend\prisma\schema.prisma:806:  user
+User @relation(fields: [userId],
+references: [id])
+backend\prisma\schema.prisma:809:
+department   Department? @relation(fields:
+[departmentId], references: [id])
+backend\prisma\schema.prisma:812:
+headsDepartment Department?
+@relation("DepartmentHead")
+backend\prisma\schema.prisma:845:  employee
+  Employee @relation(fields: [employeeId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:852:
+@@unique([employeeId, date])
+backend\prisma\schema.prisma:853:
+@@index([date])
+backend\prisma\schema.prisma:854:
+@@index([status])
+backend\prisma\schema.prisma:855:
+@@index([employeeId, date])
+backend\prisma\schema.prisma:887:
+reviewedBy   User?
+@relation("AttendanceCorrectionReviewer",
+fields: [reviewedById], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:891:  employee
+  Employee @relation(fields: [employeeId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:894:
+attendance   Attendance? @relation(fields:
+[attendanceId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:899:
+@@index([employeeId, status])
+backend\prisma\schema.prisma:900:
+@@index([requestedDate])
+backend\prisma\schema.prisma:912:  employee
+  Employee @relation(fields: [employeeId],
+references: [id])
+backend\prisma\schema.prisma:915:
+reviewedBy   User?
+@relation("EmployeeLeaveReviewer", fields:
+[reviewedById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:922:
+@@index([employeeId, status])
+backend\prisma\schema.prisma:923:
+@@index([startDate, endDate])
+backend\prisma\schema.prisma:928:
+invoiceNumber String        @unique
+backend\prisma\schema.prisma:936:  patient
+ Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:956:  invoice
+ Invoice @relation(fields: [invoiceId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:971:  invoice
+ Invoice @relation(fields: [invoiceId],
+references: [id])
+backend\prisma\schema.prisma:976:
+@@index([invoiceId, createdAt])
+backend\prisma\schema.prisma:989:  user
+User? @relation(fields: [userId],
+references: [id])
+backend\prisma\schema.prisma:999:  patient
+ Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1002:
+employee   Employee @relation(fields:
+[employeeId], references: [id])
+backend\prisma\schema.prisma:1005:
+admission   Admission? @relation(fields:
+[admissionId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1019:
+@@index([employeeId, active])
+backend\prisma\schema.prisma:1020:
+@@index([patientId, active])
+backend\prisma\schema.prisma:1021:
+@@index([admissionId])
+backend\prisma\schema.prisma:1029:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1032:
+employee   Employee? @relation(fields:
+[employeeId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1035:
+authorUser   User?
+@relation("NursingNoteAuthor", fields:
+[authorUserId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1038:
+assignment   NursingAssignment?
+@relation(fields: [assignmentId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:1047:
+@@index([patientId, recordedAt])
+backend\prisma\schema.prisma:1055:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1058:
+employee   Employee? @relation(fields:
+[employeeId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1061:
+assignment   NursingAssignment?
+@relation(fields: [assignmentId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:1078:
+@@index([patientId, observedAt])
+backend\prisma\schema.prisma:1085:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1088:
+prescription   Prescription
+@relation(fields: [prescriptionId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1091:
+nurseUser   User
+@relation("MedicationAdministrationNurse",
+fields: [nurseUserId], references: [id],
+onDelete: Restrict)
+backend\prisma\schema.prisma:1094:
+nurseEmployee   Employee? @relation(fields:
+[nurseEmployeeId], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:1104:
+@@index([patientId, administeredAt])
+backend\prisma\schema.prisma:1105:
+@@index([prescriptionId, administeredAt])
+backend\prisma\schema.prisma:1112:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1116:
+outgoingNurseUser   User
+@relation("ShiftHandoverOutgoing", fields:
+[outgoingNurseUserId], references: [id],
+onDelete: Restrict)
+backend\prisma\schema.prisma:1119:
+incomingNurseUser   User
+@relation("ShiftHandoverIncoming", fields:
+[incomingNurseUserId], references: [id],
+onDelete: Restrict)
+backend\prisma\schema.prisma:1132:
+@@index([patientId, handedOverAt])
+backend\prisma\schema.prisma:1133:
+@@index([admissionId, handedOverAt])
+backend\prisma\schema.prisma:1140:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1142:
+admissionId Int  @unique
+backend\prisma\schema.prisma:1144:
+nurseUser   User @relation(fields:
+[nurseUserId], references: [id], onDelete:
+Restrict)
+backend\prisma\schema.prisma:1155:
+@@index([patientId, createdAt])
+backend\prisma\schema.prisma:1161:  name
+      String  @unique
+backend\prisma\schema.prisma:1162:  code
+      String? @unique
+backend\prisma\schema.prisma:1181:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1184:
+provider   InsuranceProvider
+@relation(fields: [providerId], references:
+[id])
+backend\prisma\schema.prisma:1200:
+@@unique([providerId, policyNumber])
+backend\prisma\schema.prisma:1201:
+@@index([patientId, isActive])
+backend\prisma\schema.prisma:1207:
+claimNumber    String               @unique
+backend\prisma\schema.prisma:1217:  patient
+  Patient @relation(fields: [patientId],
+references: [id])
+backend\prisma\schema.prisma:1220:
+provider   InsuranceProvider
+@relation(fields: [providerId], references:
+[id])
+backend\prisma\schema.prisma:1223:
+patientInsurance   PatientInsurance?
+@relation(fields: [patientInsuranceId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:1226:  invoice
+  Invoice? @relation(fields: [invoiceId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:1229:
+reviewedBy   User?
+@relation("InsuranceClaimReviewer", fields:
+[reviewedById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1234:
+@@index([patientId, status])
+backend\prisma\schema.prisma:1235:
+@@index([providerId, status])
+backend\prisma\schema.prisma:1252:  user
+User? @relation(fields: [userId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1260:
+@@index([userId, status, createdAt])
+backend\prisma\schema.prisma:1261:
+@@index([channel, status])
+backend\prisma\schema.prisma:1267:  key
+    String  @unique
+backend\prisma\schema.prisma:1280:  code
+      String? @unique
+backend\prisma\schema.prisma:1293:
+@@index([name])
+backend\prisma\schema.prisma:1299:
+orderNumber String              @unique
+backend\prisma\schema.prisma:1308:
+supplier   Supplier @relation(fields:
+[supplierId], references: [id])
+backend\prisma\schema.prisma:1311:
+createdBy   User?
+@relation("PurchaseOrderCreator", fields:
+[createdById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1318:
+@@index([supplierId, status])
+backend\prisma\schema.prisma:1331:
+purchaseOrder   PurchaseOrder
+@relation(fields: [purchaseOrderId],
+references: [id], onDelete: Cascade)
+backend\prisma\schema.prisma:1334:
+medicine   Medicine @relation(fields:
+[medicineId], references: [id])
+backend\prisma\schema.prisma:1337:
+receivedBatch   MedicineBatch?
+@relation(fields: [receivedBatchId],
+references: [id], onDelete: SetNull)
+backend\prisma\schema.prisma:1342:
+@@index([medicineId])
+backend\prisma\schema.prisma:1392:
+visitNumber    String               @unique
+backend\prisma\schema.prisma:1403:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Restrict)
+backend\prisma\schema.prisma:1406:
+admission   Admission? @relation(fields:
+[admissionId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1409:
+attendingDoctor   Doctor? @relation(fields:
+[attendingDoctorId], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:1412:
+createdBy   User?
+@relation("EmergencyVisitCreator", fields:
+[createdById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1417:
+@@index([arrivalAt, status])
+backend\prisma\schema.prisma:1418:
+@@index([patientId, arrivalAt])
+backend\prisma\schema.prisma:1419:
+@@index([triageLevel, status])
+backend\prisma\schema.prisma:1424:
+theatreCode String        @unique
+backend\prisma\schema.prisma:1435:
+@@index([status, isActive])
+backend\prisma\schema.prisma:1440:
+bookingNumber      String        @unique
+backend\prisma\schema.prisma:1452:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Restrict)
+backend\prisma\schema.prisma:1455:
+admission   Admission? @relation(fields:
+[admissionId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1458:  doctor
+ Doctor @relation(fields: [doctorId],
+references: [id], onDelete: Restrict)
+backend\prisma\schema.prisma:1461:  theatre
+  OperationTheatre @relation(fields:
+[theatreId], references: [id], onDelete:
+Restrict)
+backend\prisma\schema.prisma:1466:
+@@index([plannedStartAt, status])
+backend\prisma\schema.prisma:1467:
+@@index([patientId, plannedStartAt])
+backend\prisma\schema.prisma:1468:
+@@index([doctorId, plannedStartAt])
+backend\prisma\schema.prisma:1469:
+@@index([theatreId, plannedStartAt])
+backend\prisma\schema.prisma:1474:
+transferNumber String                @unique
+backend\prisma\schema.prisma:1483:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Restrict)
+backend\prisma\schema.prisma:1486:
+admission   Admission? @relation(fields:
+[admissionId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1489:
+fromWard   Ward?
+@relation("TransferFromWard", fields:
+[fromWardId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1492:  toWard
+ Ward @relation("TransferToWard", fields:
+[toWardId], references: [id], onDelete:
+Restrict)
+backend\prisma\schema.prisma:1495:  fromBed
+  Bed? @relation("TransferFromBed", fields:
+[fromBedId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1498:  toBed
+Bed? @relation("TransferToBed", fields:
+[toBedId], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1501:
+requestedBy   User?
+@relation("TransferRequester", fields:
+[requestedById], references: [id],
+onDelete: SetNull)
+backend\prisma\schema.prisma:1504:
+approvedBy   User?
+@relation("TransferApprover", fields:
+[approvedById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1509:
+@@index([patientId, status])
+backend\prisma\schema.prisma:1510:
+@@index([toWardId, status])
+backend\prisma\schema.prisma:1511:
+@@index([requestedAt, status])
+backend\prisma\schema.prisma:1516:
+summaryNumber        String   @unique
+backend\prisma\schema.prisma:1529:  patient
+  Patient @relation(fields: [patientId],
+references: [id], onDelete: Restrict)
+backend\prisma\schema.prisma:1531:
+admissionId Int       @unique
+backend\prisma\schema.prisma:1532:
+admission   Admission @relation(fields:
+[admissionId], references: [id], onDelete:
+Restrict)
+backend\prisma\schema.prisma:1535:
+preparedBy   User?
+@relation("DischargeSummaryAuthor", fields:
+[preparedById], references: [id], onDelete:
+SetNull)
+backend\prisma\schema.prisma:1540:
+@@index([patientId, dischargeDate])
+
+========== PERMISSIONS ==========
+BEGIN;
+
+INSERT INTO "Permission"
+("name", "description", "createdAt", "updatedAt")
+VALUES
+
+-- Dashboard
+('DASHBOARD_VIEW', 'View hospital dashboard'),
+
+-- User management
+('USER_CREATE', 'Create users'),
+('USER_VIEW', 'View users'),
+('USER_UPDATE', 'Update users'),
+('USER_DELETE', 'Delete users'),
+
+-- Patient management
+('PATIENT_CREATE', 'Register patients'),
+('PATIENT_VIEW', 'View patient records'),
+('PATIENT_UPDATE', 'Update patient records'),
+('PATIENT_DELETE', 'Delete patient records'),
+
+-- Doctor management
+('DOCTOR_CREATE', 'Register doctors'),
+('DOCTOR_VIEW', 'View doctors'),
+('DOCTOR_UPDATE', 'Update doctor records'),
+('DOCTOR_DELETE', 'Delete doctor records'),
+
+-- Employee management
+('EMPLOYEE_CREATE', 'Create employee records'),
+('EMPLOYEE_VIEW', 'View employee records'),
+('EMPLOYEE_UPDATE', 'Update employee records'),
+('EMPLOYEE_DELETE', 'Delete employee records'),
+
+-- Department management
+('DEPARTMENT_MANAGE', 'Manage departments'),
+
+-- Appointment management
+('APPOINTMENT_CREATE', 'Create appointments'),
+('APPOINTMENT_VIEW', 'View appointments'),
+('APPOINTMENT_UPDATE', 'Update appointments'),
+('APPOINTMENT_DELETE', 'Cancel or delete appointments'),
+
+-- Ward and bed management
+('WARD_MANAGE', 'Manage hospital wards'),
+('BED_MANAGE', 'Manage hospital beds'),
+('ROOM_MANAGE', 'Manage hospital rooms'),
+
+-- Medical records
+('MEDICAL_RECORD_CREATE', 'Create medical records'),
+('MEDICAL_RECORD_VIEW', 'View medical records'),
+('MEDICAL_RECORD_UPDATE', 'Update medical records'),
+
+-- Prescription management
+('PRESCRIPTION_CREATE', 'Create prescriptions'),
+('PRESCRIPTION_VIEW', 'View prescriptions'),
+('PRESCRIPTION_UPDATE', 'Update prescriptions'),
+
+-- Pharmacy
+('MEDICINE_MANAGE', 'Manage medicines'),
+('STOCK_MANAGE', 'Manage medicine stock'),
+
+-- Laboratory
+('LAB_REQUEST_CREATE', 'Create laboratory requests'),
+('LAB_REQUEST_VIEW', 'View laboratory requests'),
+('LAB_RESULT_MANAGE', 'Manage laboratory results'),
+
+-- Billing
+('INVOICE_CREATE', 'Create invoices'),
+('INVOICE_VIEW', 'View invoices'),
+('PAYMENT_MANAGE', 'Manage payments'),
+
+-- Attendance and leave
+('ATTENDANCE_MANAGE', 'Manage employee attendance'),
+('LEAVE_MANAGE', 'Manage employee leave'),
+
+-- Inventory
+('INVENTORY_MANAGE', 'Manage hospital inventory'),
+
+-- Audit and reports
+('AUDIT_LOG_VIEW', 'View audit logs'),
+('REPORT_VIEW', 'View reports'),
+('REPORT_EXPORT', 'Export reports')
+
+ON CONFLICT ("name") DO NOTHING;
+
+COMMIT;
+
+
+]633;D;0]633;A]633;P;Cwd=E:\x5chospital-management-systemPS E:\hospital-management-system> ]633;B
+PS>Write-Host "`n========== BACKEND BUILD =========="
+
+Set-Location $Backend
+npm run build
+
+Write-Host "`n========== FRONTEND BUILD =========="
+
+Set-Location $Frontend
+npm run build
+
+Write-Host "`n========== PRISMA VALIDATION =========="
+
+Set-Location $Backend
+npx prisma validate
+
+Write-Host "`n========== PRISMA MIGRATION STATUS =========="
+
+npx prisma migrate status
+
+Stop-Transcript
+
+Write-Host "`nAUDIT FINISHED."
+Write-Host "Report saved at: $Report"
+
+========== BACKEND BUILD ==========
+
+
+========== FRONTEND BUILD ==========
+
+
+========== PRISMA VALIDATION ==========
+
+
+========== PRISMA MIGRATION STATUS ==========
+
+**********************
+Windows PowerShell transcript end
+End time: 20261120193850
+**********************
