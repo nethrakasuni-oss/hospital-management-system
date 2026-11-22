@@ -1,12 +1,12 @@
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Global request validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,14 +18,33 @@ async function bootstrap() {
     }),
   );
 
-  // CORS configuration
+  const allowedOrigins = (
+    process.env.FRONTEND_ORIGIN || 'http://localhost:5173'
+  )
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''));
+
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin.replace(/\/$/, ''))
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Origin not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  const port = Number(process.env.PORT) || 3000;
+
+  await app.listen(port, '0.0.0.0');
 }
 
 await bootstrap();
