@@ -1,0 +1,34 @@
+﻿# Dependencies
+node_modules
+
+# Build output
+dist
+coverage
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tsbuildinfo
+
+# Git
+.git
+.gitignore
+
+# Generated Prisma files
+src/generated/prisma
+generated/prisma
+
+# Generated development skills
+.agents
+.claude
+.cursor
+.devin
+
+# Database backups
+*.dump
+*.backup
+*.sql.gz

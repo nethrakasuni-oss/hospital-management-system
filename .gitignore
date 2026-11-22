@@ -1,0 +1,47 @@
+﻿# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+**/dist/
+.next/
+**/.next/
+coverage/
+
+# Generated Prisma files
+**/src/generated/prisma/
+**/generated/prisma/
+
+# Prisma generated AI skills
+**/.agents/
+**/.claude/
+**/.cursor/
+**/.devin/
+
+# Database backups
+database-backup/
+database-backups/
+*.dump
+*.backup
+*.sql.gz
+
+# TypeScript build information
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
